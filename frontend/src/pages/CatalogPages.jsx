@@ -2,16 +2,16 @@ import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import CafeLayout, { asset, Icon } from '../components/layout/CafeLayout.jsx';
 import DrinkCard from '../components/common/DrinkCard.jsx';
-import { baht, cafes, getCafe, getItem, menu } from '../data/menu.js';
-
-const categories = ['Coffee', 'Tea & More', 'Snacks'];
+import { baht, cafes, categories, getCafe } from '../data/menu.js';
+import { useMenu } from '../data/MenuContext.jsx';
 
 export function CafesPage() {
+  const { menu } = useMenu();
   const [category, setCategory] = useState(categories[0]);
   const [query, setQuery] = useState('');
   const [cafe, setCafe] = useState('');
   const items = menu.filter((item) =>
-    item.category === category &&
+    !item.archived && item.category === category &&
     (!cafe || getCafe(item) === cafe) &&
     item.name.toLowerCase().includes(query.trim().toLowerCase()),
   );
@@ -46,6 +46,7 @@ export function CafesPage() {
 }
 
 export function FavoritesPage({ favorites, toggleFavorite }) {
+  const { getItem } = useMenu();
   return (
     <CafeLayout title="Your saved items across campus cafés">
       <div className="favorites-grid">
@@ -57,11 +58,12 @@ export function FavoritesPage({ favorites, toggleFavorite }) {
 }
 
 export function DrinkPage({ favorites, toggleFavorite, addToBasket }) {
+  const { getItem } = useMenu();
   const { id } = useParams();
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
   const item = getItem(id);
-  if (!item) return <main className="missing"><h1>Menu item not found</h1><Link to="/cafes">Back to cafés</Link></main>;
+  if (!item || item.archived) return <main className="missing"><h1>Menu item unavailable</h1><Link to="/cafes">Back to cafés</Link></main>;
 
   const image = id === 'sweet-heaven' ? '6310f.png' : item.image;
   const isFavorite = favorites.includes(id);
