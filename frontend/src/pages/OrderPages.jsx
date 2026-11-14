@@ -150,7 +150,15 @@ export function StaffPage({ orders, advanceOrder }) {
       <StatusBar />
       <section>
         <div className="spread staff-title"><h1>Cafe Rung — Orders</h1><button aria-label="Staff settings" aria-expanded={settings} onClick={() => setSettings(!settings)}><Icon file="474a4.svg" /></button></div>
-        {settings && <p role="status">Cafe Rung queue preview · changes are saved in this browser.</p>}
+        {settings && (
+          <div className="outlined staff-settings">
+            <p>Cafe Rung queue preview · changes are saved in this browser.</p>
+            <Link className="staff-logout" to="/login" replace>
+              <Icon file="dc0aa.svg" />
+              Log out
+            </Link>
+          </div>
+        )}
         <p className="staff-date">28 Sep 2026</p>
         <div className="staff-tabs">
           {statuses.map((name) => {

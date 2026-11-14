@@ -134,6 +134,9 @@ h1, h2, h3, strong, b { font-weight: 650; }
 .staff-title h1 { font-size: 22px; color: var(--deep); }
 .staff-title button { border: 1px solid; border-radius: 50%; width: 32px; height: 32px; display: grid; place-items: center; }
 .staff-title img { max-width: 16px; }
+.staff-settings { margin-top: 8px; padding: 12px; border-radius: 10px; font-size: 13px; }
+.staff-logout { display: flex; align-items: center; gap: 8px; width: fit-content; min-height: 36px; font-weight: 600; }
+.staff-logout img { max-width: 20px; }
 .staff-date { font-size: 14px; margin: 4px 0 12px; }
 .staff-tabs { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 17px; }
 .staff-tabs button { display: flex; align-items: center; gap: 4px; padding: 5px 9px; min-height: 32px; border-radius: 8px; border: 1px solid var(--ink); background: var(--surface); font-size: 12px; font-weight: 600; }
