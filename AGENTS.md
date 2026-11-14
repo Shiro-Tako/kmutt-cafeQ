@@ -2,10 +2,11 @@
 
 ## Ownership
 
-- The frontend developer owns `frontend/`, including pages, reusable components, and API calls.
-- The backend developer owns `backend/`, including Express routes, controllers, and MySQL connection configuration.
+- Member 1 owns `frontend/` and the backend café and menu modules.
+- Member 2 owns the backend auth, checkout, order, and favorites modules, plus `backend/src/server.js` and shared backend configuration.
 - The database developer owns `database/`, including schema and development seed data.
 - The team coordinates shared changes in `docs/`, the root README, and this file. Agree on API and schema changes before relying on them across folders.
+- See [the team plan](docs/team-plan.md) for the full file assignments.
 
 ## Coding conventions
 

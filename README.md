@@ -1,13 +1,19 @@
 # KMUTT Café Queue System
 
-A university project for managing café queues. The foundation includes a temporary homepage and an Express health endpoint.
+A university project for managing café queues. The frontend includes customer ordering and staff demos. Express currently provides a health endpoint.
+
+## Team development
+
+Use the [team plan](docs/team-plan.md) for ownership and integration steps, the [API contract](docs/api-contract.md) for endpoints and JSON examples, and the [MySQL contract](docs/database-contract.md) for tables and shared seed IDs.
+
+See the [backend handoff](docs/backend-handoff.md) for Member 2's endpoints and local MySQL setup.
 
 | Folder | Responsibility |
 | --- | --- |
 | `frontend/` | React, Vite, Tailwind CSS v4, and React Router |
 | `backend/` | Express API and mysql2 connection configuration |
 | `database/` | MySQL schema and seed placeholders |
-| `docs/` | Provisional API contract and frontend plan |
+| `docs/` | Team plan, API and MySQL contracts, and frontend integration plan |
 
 ## Windows setup
 
