@@ -46,8 +46,6 @@ export default function CafeLayout({ title, children }) {
         {panel === 'menu' && (
           <div className="profile-menu">
             <button onClick={() => setNotice('Customer preview · Somchai P.')}><Icon file="49e89.png" />Profile</button>
-            <button onClick={() => setNotice('Order at a campus café and check My Order for pickup updates.')}><Icon file="474a4.svg" />Settings</button>
-            <button onClick={() => setNotice('Choose a café, add items to your basket, and follow your queue status.')}><Icon file="efebe.svg" />Help</button>
             <Link to="/login"><Icon file="dc0aa.svg" />Logout</Link>
           </div>
         )}

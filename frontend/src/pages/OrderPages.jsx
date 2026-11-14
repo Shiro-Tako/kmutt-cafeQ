@@ -1,11 +1,20 @@
 import { useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 import CafeLayout, { asset, Icon, StatusBar } from '../components/layout/CafeLayout.jsx';
 import DrinkCard from '../components/common/DrinkCard.jsx';
 import { baht, cafes, getCafe, getItem } from '../data/menu.js';
 
 export function total(items) {
   return Object.entries(items).reduce((sum, [id, count]) => sum + getItem(id).price * count, 0);
+}
+
+export function getCheckout(basket, requestedCafe, pickupOption) {
+  const cafe = cafes.find((name) => name === requestedCafe) ?? cafes[0];
+  const items = Object.fromEntries(Object.entries(basket).filter(([id]) => getCafe(getItem(id)) === cafe));
+  const subtotal = total(items);
+  const counter = `${cafe} pickup counter`;
+  const pickup = pickupOption === 'counter' ? counter : cafe;
+  return { cafe, items, subtotal, fee: subtotal ? 5 : 0, counter, pickup };
 }
 
 export function BasketPage({ basket, orders, changeQuantity, clearCafe }) {
@@ -83,15 +92,10 @@ export function BasketPage({ basket, orders, changeQuantity, clearCafe }) {
   );
 }
 
-export function PaymentPage({ basket, placeOrder }) {
-  const [params] = useSearchParams();
-  const navigate = useNavigate();
-  const cafe = cafes.find((name) => name === params.get('cafe')) ?? cafes[0];
-  const [pickup, setPickup] = useState(cafe);
+export function PaymentPage({ basket }) {
+  const [params, setParams] = useSearchParams();
+  const { cafe, items, subtotal, fee, counter, pickup } = getCheckout(basket, params.get('cafe'), params.get('pickup'));
   const [editing, setEditing] = useState(false);
-  const items = Object.fromEntries(Object.entries(basket).filter(([id]) => getCafe(getItem(id)) === cafe));
-  const subtotal = total(items);
-  const fee = subtotal ? 5 : 0;
   return (
     <main className="payment-screen">
       <StatusBar />
@@ -102,7 +106,7 @@ export function PaymentPage({ basket, placeOrder }) {
         <h2><Icon file="26886.svg" /> Pickup point</h2>
         <div className="spread">
           {editing
-            ? <select aria-label="Pickup point" value={pickup} onChange={(event) => setPickup(event.target.value)}><option>{cafe}</option><option>{cafe} pickup counter</option></select>
+            ? <select aria-label="Pickup point" value={pickup} onChange={(event) => setParams({ cafe, pickup: event.target.value === counter ? 'counter' : 'cafe' }, { replace: true })}><option>{cafe}</option><option>{counter}</option></select>
             : <p>{pickup}</p>}
           <button onClick={() => setEditing(!editing)}>{editing ? 'Done' : 'Edit'}</button>
         </div>
@@ -124,8 +128,9 @@ export function PaymentPage({ basket, placeOrder }) {
         <div className="spread payment-total"><strong>TOTAL</strong><strong>{baht(subtotal + fee)}</strong></div>
       </section>
       <section className="payment-section">
-        {subtotal > 0 ? <button className="primary" onClick={() => { placeOrder(cafe, pickup, items, fee); navigate('/basket?tab=orders'); }}>Confirm pickup order</button> : <Link to="/cafes">Browse the menu</Link>}
-        <p>Preview only. No payment is collected.</p>
+        {subtotal > 0 ? (
+          <Link className="primary" to={`/payment/online?${params.toString()}`}>Continue to payment</Link>
+        ) : <Link to="/cafes">Browse the menu</Link>}
       </section>
     </main>
   );
@@ -145,7 +150,15 @@ export function StaffPage({ orders, advanceOrder }) {
       <StatusBar />
       <section>
         <div className="spread staff-title"><h1>Cafe Rung — Orders</h1><button aria-label="Staff settings" aria-expanded={settings} onClick={() => setSettings(!settings)}><Icon file="474a4.svg" /></button></div>
-        {settings && <p role="status">Cafe Rung queue preview · changes are saved in this browser.</p>}
+        {settings && (
+          <div className="outlined staff-settings">
+            <p>Cafe Rung queue preview · changes are saved in this browser.</p>
+            <Link className="staff-logout" to="/login" replace>
+              <Icon file="dc0aa.svg" />
+              Log out
+            </Link>
+          </div>
+        )}
         <p className="staff-date">28 Sep 2026</p>
         <div className="staff-tabs">
           {statuses.map((name) => {

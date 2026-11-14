@@ -36,7 +36,7 @@ h1, h2, h3, strong, b { font-weight: 650; }
 .profile-menu > * { display: flex; align-items: center; gap: 12px; min-height: 45px; width: 100%; padding-inline: 20px; border-bottom: 1px solid #e8c88b; }
 .profile-menu img { max-width: 22px; border-radius: 50%; }
 .header-notice { max-width: 250px; padding: 12px; border-radius: 10px; font-size: 13px; }
-.profile-menu + .header-notice { top: 222px; }
+.profile-menu + .header-notice { top: 132px; }
 .screen-content { padding: 0 var(--gutter) calc(var(--nav-height) + env(safe-area-inset-bottom, 0px) + 20px); }
 .bottom-nav { position: fixed; z-index: 2; inset: auto 0 0; width: min(100%, 460px); margin-inline: auto; min-height: calc(var(--nav-height) + env(safe-area-inset-bottom, 0px)); padding: 12px min(4vw, 16px) env(safe-area-inset-bottom, 0px); display: grid; grid-template-columns: repeat(4, 1fr); background: var(--ink); color: var(--surface); box-shadow: 0 -2px 4px #57280a35; }
 .bottom-nav a { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10px; font-weight: 500; }
@@ -134,6 +134,9 @@ h1, h2, h3, strong, b { font-weight: 650; }
 .staff-title h1 { font-size: 22px; color: var(--deep); }
 .staff-title button { border: 1px solid; border-radius: 50%; width: 32px; height: 32px; display: grid; place-items: center; }
 .staff-title img { max-width: 16px; }
+.staff-settings { margin-top: 8px; padding: 12px; border-radius: 10px; font-size: 13px; }
+.staff-logout { display: flex; align-items: center; gap: 8px; width: fit-content; min-height: 36px; font-weight: 600; }
+.staff-logout img { max-width: 20px; }
 .staff-date { font-size: 14px; margin: 4px 0 12px; }
 .staff-tabs { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 17px; }
 .staff-tabs button { display: flex; align-items: center; gap: 4px; padding: 5px 9px; min-height: 32px; border-radius: 8px; border: 1px solid var(--ink); background: var(--surface); font-size: 12px; font-weight: 600; }
@@ -182,3 +185,18 @@ h1, h2, h3, strong, b { font-weight: 650; }
   .staff-tabs button { padding-inline: 6px; }
   .detail-copy { padding-inline: 22px; }
 }
+
+.cafe-filter { display: flex; align-items: center; gap: 12px; margin-top: 24px; font-size: 13px; font-weight: 600; }
+.cafe-filter select { flex: 1; min-width: 0; padding: 6px 10px; border: 1px solid var(--ink); border-radius: 9px; background: var(--surface); }
+.cafe-filter + .search { margin-top: 12px; }
+.menu-item-copy small, .item-cafe { font-size: 12px; font-weight: 650; }
+.menu-item-copy span { margin-block: 4px; }
+.drink-card a > span { gap: 5px; }
+.drink-card small { font-size: 11px; }
+.online-payment h1 { margin-top: 16px; font-size: 24px; }
+.online-summary, .online-method { margin-block: 16px; padding: 16px; border-radius: 12px; }
+.online-summary .spread { margin-top: 8px; }
+.online-total { border-top: 1px solid var(--ink); padding-top: 10px; }
+.online-method { display: flex; gap: 12px; align-items: center; }
+.online-method p { margin-bottom: 0; }
+.payment-preview-icon { display: grid; place-items: center; flex: 0 0 40px; height: 40px; border-radius: 8px; background: var(--canvas); font-size: 20px; }

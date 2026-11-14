@@ -2,17 +2,29 @@ import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import CafeLayout, { asset, Icon } from '../components/layout/CafeLayout.jsx';
 import DrinkCard from '../components/common/DrinkCard.jsx';
-import { baht, getItem, menu } from '../data/menu.js';
+import { baht, cafes, getCafe, getItem, menu } from '../data/menu.js';
 
 const categories = ['Coffee', 'Tea & More', 'Snacks'];
 
 export function CafesPage() {
   const [category, setCategory] = useState(categories[0]);
   const [query, setQuery] = useState('');
-  const items = menu.filter((item) => item.category === category && item.name.toLowerCase().includes(query.trim().toLowerCase()));
+  const [cafe, setCafe] = useState('');
+  const items = menu.filter((item) =>
+    item.category === category &&
+    (!cafe || getCafe(item) === cafe) &&
+    item.name.toLowerCase().includes(query.trim().toLowerCase()),
+  );
 
   return (
     <CafeLayout title="Choose a café to start ordering">
+      <div className="cafe-filter">
+        <label htmlFor="cafe-filter">Café</label>
+        <select id="cafe-filter" value={cafe} onChange={(event) => setCafe(event.target.value)}>
+          <option value="">All cafés</option>
+          {cafes.map((name) => <option key={name}>{name}</option>)}
+        </select>
+      </div>
       <input className="search" type="search" aria-label="Search menu" placeholder="Search.." value={query} onChange={(event) => setQuery(event.target.value)} />
       <div className="segments category-tabs" aria-label="Menu categories">
         {categories.map((name) => <button key={name} aria-pressed={name === category} onClick={() => setCategory(name)}>{name}</button>)}
@@ -22,7 +34,7 @@ export function CafesPage() {
           <article key={item.id} className="menu-item">
             <Link className="menu-item-info" to={`/drink/${item.id}`}>
               <span className="menu-photo">{item.image && <img src={asset(item.image)} alt="" />}</span>
-              <span className="menu-item-copy"><strong>{item.name}</strong><span>{item.description}</span><b>{baht(item.price)}</b></span>
+              <span className="menu-item-copy"><strong>{item.name}</strong><small>{getCafe(item)}</small><span>{item.description}</span><b>{baht(item.price)}</b></span>
             </Link>
             <Link className="square-button" to={`/drink/${item.id}`} aria-label={`Choose ${item.name}`}>+</Link>
           </article>
@@ -61,6 +73,7 @@ export function DrinkPage({ favorites, toggleFavorite, addToBasket }) {
       </div>
       <section className="detail-copy">
         <h1>{item.name}</h1>
+        <small className="item-cafe">{getCafe(item)}</small>
         <p>{item.description}</p>
         <b>{baht(item.price)}</b>
         <div className="quantity">

@@ -7,7 +7,7 @@ export default function HomePage() {
   return (
     <CafeLayout title="Good day, Somchai">
       <Link className="feature" to="/drink/sweet-heaven">
-        <span><small>Popular right now</small><strong>Iced Coffee<br />Sweet Heaven</strong><small>More info <Icon file="81ec2.svg" /></small></span>
+        <span><small>Popular at {getItem('sweet-heaven').cafe}</small><strong>Iced Coffee<br />Sweet Heaven</strong><small>More info <Icon file="81ec2.svg" /></small></span>
         <img className="feature-photo" src={asset('39b54.png')} alt="" />
       </Link>
       <section className="recommendations">
