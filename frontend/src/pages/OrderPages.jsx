@@ -8,6 +8,13 @@ export function total(items) {
   return Object.entries(items).reduce((sum, [id, count]) => sum + getItem(id).price * count, 0);
 }
 
+export function getCheckout(basket, requestedCafe) {
+  const cafe = cafes.find((name) => name === requestedCafe) ?? cafes[0];
+  const items = Object.fromEntries(Object.entries(basket).filter(([id]) => getCafe(getItem(id)) === cafe));
+  const subtotal = total(items);
+  return { cafe, items, subtotal, fee: subtotal ? 5 : 0 };
+}
+
 export function BasketPage({ basket, orders, changeQuantity, clearCafe }) {
   const [params, setParams] = useSearchParams();
   const [expanded, setExpanded] = useState(null);
@@ -84,14 +91,12 @@ export function BasketPage({ basket, orders, changeQuantity, clearCafe }) {
 }
 
 export function PaymentPage({ basket, placeOrder }) {
-  const [params] = useSearchParams();
+  const [params, setParams] = useSearchParams();
   const navigate = useNavigate();
-  const cafe = cafes.find((name) => name === params.get('cafe')) ?? cafes[0];
-  const [pickup, setPickup] = useState(cafe);
+  const { cafe, items, subtotal, fee } = getCheckout(basket, params.get('cafe'));
+  const counter = `${cafe} pickup counter`;
+  const pickup = params.get('pickup') === 'counter' ? counter : cafe;
   const [editing, setEditing] = useState(false);
-  const items = Object.fromEntries(Object.entries(basket).filter(([id]) => getCafe(getItem(id)) === cafe));
-  const subtotal = total(items);
-  const fee = subtotal ? 5 : 0;
   return (
     <main className="payment-screen">
       <StatusBar />
@@ -102,7 +107,7 @@ export function PaymentPage({ basket, placeOrder }) {
         <h2><Icon file="26886.svg" /> Pickup point</h2>
         <div className="spread">
           {editing
-            ? <select aria-label="Pickup point" value={pickup} onChange={(event) => setPickup(event.target.value)}><option>{cafe}</option><option>{cafe} pickup counter</option></select>
+            ? <select aria-label="Pickup point" value={pickup} onChange={(event) => setParams({ cafe, pickup: event.target.value === counter ? 'counter' : 'cafe' }, { replace: true })}><option>{cafe}</option><option>{counter}</option></select>
             : <p>{pickup}</p>}
           <button onClick={() => setEditing(!editing)}>{editing ? 'Done' : 'Edit'}</button>
         </div>
@@ -124,8 +129,12 @@ export function PaymentPage({ basket, placeOrder }) {
         <div className="spread payment-total"><strong>TOTAL</strong><strong>{baht(subtotal + fee)}</strong></div>
       </section>
       <section className="payment-section">
-        {subtotal > 0 ? <button className="primary" onClick={() => { placeOrder(cafe, pickup, items, fee); navigate('/basket?tab=orders'); }}>Confirm pickup order</button> : <Link to="/cafes">Browse the menu</Link>}
-        <p>Preview only. No payment is collected.</p>
+        {subtotal > 0 ? (
+          <div className="checkout-actions">
+            <button className="primary" onClick={() => { placeOrder(cafe, pickup, items, fee); navigate('/basket?tab=orders'); }}>Confirm pickup order</button>
+            <Link className="staff-login outlined" to={`/payment/online?${params.toString()}`}>Preview online payment</Link>
+          </div>
+        ) : <Link to="/cafes">Browse the menu</Link>}
       </section>
     </main>
   );

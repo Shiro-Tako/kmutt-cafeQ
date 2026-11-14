@@ -190,3 +190,13 @@ h1, h2, h3, strong, b { font-weight: 650; }
 .menu-item-copy span { margin-block: 4px; }
 .drink-card a > span { gap: 5px; }
 .drink-card small { font-size: 11px; }
+.checkout-actions { display: grid; gap: 10px; }
+.checkout-actions .staff-login { border-radius: 8px; }
+.online-payment h1 { margin-top: 16px; font-size: 24px; }
+.online-summary, .online-method { margin-block: 16px; padding: 16px; border-radius: 12px; }
+.online-summary .spread { margin-top: 8px; }
+.online-total { border-top: 1px solid var(--ink); padding-top: 10px; }
+.online-method { display: flex; gap: 12px; align-items: center; }
+.online-method p { margin-bottom: 0; }
+.payment-preview-icon { display: grid; place-items: center; flex: 0 0 40px; height: 40px; border-radius: 8px; background: var(--canvas); font-size: 20px; }
+.preview-pay:disabled { opacity: .65; }
