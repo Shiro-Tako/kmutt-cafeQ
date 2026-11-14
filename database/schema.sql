@@ -1,0 +1,2 @@
+-- Add MySQL table definitions and constraints after the team approves the schema.
+-- This placeholder contains no executable statements.
