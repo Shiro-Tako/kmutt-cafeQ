@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router';
+import { useEffect, useRef, useState } from 'react';
+import { Link, useParams } from 'react-router';
 import CafeLayout, { asset, Icon } from '../components/layout/CafeLayout.jsx';
 import DrinkCard from '../components/common/DrinkCard.jsx';
 import { baht, cafes, categories, getCafe } from '../data/menu.js';
@@ -60,13 +60,22 @@ export function FavoritesPage({ favorites, toggleFavorite }) {
 export function DrinkPage({ favorites, toggleFavorite, addToBasket }) {
   const { getItem } = useMenu();
   const { id } = useParams();
-  const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
+  const [added, setAdded] = useState(null);
+  const timeout = useRef();
+  useEffect(() => () => clearTimeout(timeout.current), []);
   const item = getItem(id);
   if (!item || item.archived) return <main className="missing"><h1>Menu item unavailable</h1><Link to="/cafes">Back to cafés</Link></main>;
 
   const image = id === 'sweet-heaven' ? '6310f.png' : item.image;
   const isFavorite = favorites.includes(id);
+
+  function handleAdd() {
+    addToBasket(id, quantity);
+    setAdded({ quantity });
+    clearTimeout(timeout.current);
+    timeout.current = setTimeout(() => setAdded(null), 2200);
+  }
   return (
     <main className="detail-screen" style={image ? { '--detail-photo': `url("${asset(image)}")` } : undefined}>
       <div className="detail-actions">
@@ -83,7 +92,10 @@ export function DrinkPage({ favorites, toggleFavorite, addToBasket }) {
           <output aria-label="Quantity">{quantity}</output>
           <button className="square-button" aria-label="Increase quantity" onClick={() => setQuantity(quantity + 1)}>+</button>
         </div>
-        <button className="primary buy-button" onClick={() => { addToBasket(id, quantity); navigate('/basket'); }}>Buy Now</button>
+        <button className="primary add-to-basket" onClick={handleAdd}>Add to basket</button>
+        <div className="basket-feedback" role="status">
+          {added && <span className="basket-feedback-message"><span aria-hidden="true">✓</span> Added {added.quantity} to basket</span>}
+        </div>
       </section>
     </main>
   );
