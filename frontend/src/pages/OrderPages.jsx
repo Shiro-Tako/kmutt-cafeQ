@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 import CafeLayout, { asset, Icon, StatusBar } from '../components/layout/CafeLayout.jsx';
 import DrinkCard from '../components/common/DrinkCard.jsx';
 import { baht, cafes, getCafe, getItem } from '../data/menu.js';
@@ -8,11 +8,13 @@ export function total(items) {
   return Object.entries(items).reduce((sum, [id, count]) => sum + getItem(id).price * count, 0);
 }
 
-export function getCheckout(basket, requestedCafe) {
+export function getCheckout(basket, requestedCafe, pickupOption) {
   const cafe = cafes.find((name) => name === requestedCafe) ?? cafes[0];
   const items = Object.fromEntries(Object.entries(basket).filter(([id]) => getCafe(getItem(id)) === cafe));
   const subtotal = total(items);
-  return { cafe, items, subtotal, fee: subtotal ? 5 : 0 };
+  const counter = `${cafe} pickup counter`;
+  const pickup = pickupOption === 'counter' ? counter : cafe;
+  return { cafe, items, subtotal, fee: subtotal ? 5 : 0, counter, pickup };
 }
 
 export function BasketPage({ basket, orders, changeQuantity, clearCafe }) {
@@ -90,12 +92,9 @@ export function BasketPage({ basket, orders, changeQuantity, clearCafe }) {
   );
 }
 
-export function PaymentPage({ basket, placeOrder }) {
+export function PaymentPage({ basket }) {
   const [params, setParams] = useSearchParams();
-  const navigate = useNavigate();
-  const { cafe, items, subtotal, fee } = getCheckout(basket, params.get('cafe'));
-  const counter = `${cafe} pickup counter`;
-  const pickup = params.get('pickup') === 'counter' ? counter : cafe;
+  const { cafe, items, subtotal, fee, counter, pickup } = getCheckout(basket, params.get('cafe'), params.get('pickup'));
   const [editing, setEditing] = useState(false);
   return (
     <main className="payment-screen">
@@ -130,10 +129,7 @@ export function PaymentPage({ basket, placeOrder }) {
       </section>
       <section className="payment-section">
         {subtotal > 0 ? (
-          <div className="checkout-actions">
-            <button className="primary" onClick={() => { placeOrder(cafe, pickup, items, fee); navigate('/basket?tab=orders'); }}>Confirm pickup order</button>
-            <Link className="staff-login outlined" to={`/payment/online?${params.toString()}`}>Preview online payment</Link>
-          </div>
+          <Link className="primary" to={`/payment/online?${params.toString()}`}>Continue to payment</Link>
         ) : <Link to="/cafes">Browse the menu</Link>}
       </section>
     </main>

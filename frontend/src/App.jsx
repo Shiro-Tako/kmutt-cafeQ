@@ -64,8 +64,8 @@ export default function App() {
       <Route path="/drink/:id" element={<DrinkRoute favorites={favorites} toggleFavorite={toggleFavorite} addToBasket={changeQuantity} />} />
       <Route path="/favorites" element={<FavoritesPage favorites={favorites} toggleFavorite={toggleFavorite} />} />
       <Route path="/basket" element={<BasketPage basket={basket} orders={orders} changeQuantity={changeQuantity} clearCafe={clearCafe} />} />
-      <Route path="/payment" element={<PaymentPage basket={basket} placeOrder={placeOrder} />} />
-      <Route path="/payment/online" element={<OnlinePaymentPage basket={basket} />} />
+      <Route path="/payment" element={<PaymentPage basket={basket} />} />
+      <Route path="/payment/online" element={<OnlinePaymentPage basket={basket} placeOrder={placeOrder} />} />
       <Route path="/staff/orders" element={<StaffPage orders={orders} advanceOrder={advanceOrder} />} />
       <Route path="*" element={<main className="missing"><h1>Page not found</h1><Link to="/">Back to home</Link></main>} />
     </Routes>

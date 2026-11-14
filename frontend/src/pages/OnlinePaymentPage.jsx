@@ -1,12 +1,19 @@
-import { Link, useSearchParams } from 'react-router';
+import { Link, useNavigate, useSearchParams } from 'react-router';
 import { StatusBar } from '../components/layout/CafeLayout.jsx';
 import { baht } from '../data/menu.js';
 import { getCheckout } from './OrderPages.jsx';
 
-export default function OnlinePaymentPage({ basket }) {
+export default function OnlinePaymentPage({ basket, placeOrder }) {
   const [params] = useSearchParams();
-  const { cafe, subtotal, fee } = getCheckout(basket, params.get('cafe'));
+  const navigate = useNavigate();
+  const { cafe, pickup, items, subtotal, fee } = getCheckout(basket, params.get('cafe'), params.get('pickup'));
   const checkoutUrl = `/payment?${params.toString()}`;
+
+  function completeDemoPayment() {
+    if (subtotal === 0) return;
+    placeOrder(cafe, pickup, items, fee);
+    navigate('/basket?tab=orders', { replace: true });
+  }
 
   return (
     <main className="payment-screen online-payment">
@@ -25,9 +32,9 @@ export default function OnlinePaymentPage({ basket }) {
             </div>
             <div className="outlined online-method">
               <span className="payment-preview-icon" aria-hidden="true">฿</span>
-              <div><h2>PromptPay QR</h2><p>QR payment is unavailable in this preview.</p></div>
+              <div><h2>PromptPay demo</h2><p>Complete the demo payment to send your order to the pickup queue.</p></div>
             </div>
-            <button className="primary preview-pay" disabled>Pay {baht(subtotal + fee)}</button>
+            <button className="primary" onClick={completeDemoPayment}>Simulate payment · {baht(subtotal + fee)}</button>
           </>
         ) : (
           <p>Your basket has no items for {cafe}. <Link className="edit-order" to="/cafes">Browse the menu</Link></p>
