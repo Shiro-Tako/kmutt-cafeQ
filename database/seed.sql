@@ -1,0 +1,2 @@
+-- Add development sample data after the schema is approved.
+-- Run this file after schema.sql once both contain SQL statements.
