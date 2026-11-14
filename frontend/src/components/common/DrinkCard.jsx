@@ -3,6 +3,7 @@ import { asset, Icon } from '../layout/CafeLayout.jsx';
 import { baht, getCafe } from '../../data/menu.js';
 
 export default function DrinkCard({ item, onRemove }) {
+  if (item.archived) return null;
   return (
     <article className="drink-card">
       <Link to={`/drink/${item.id}`}>

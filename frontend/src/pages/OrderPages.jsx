@@ -2,22 +2,29 @@ import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import CafeLayout, { asset, Icon, StatusBar } from '../components/layout/CafeLayout.jsx';
 import DrinkCard from '../components/common/DrinkCard.jsx';
-import { baht, cafes, getCafe, getItem } from '../data/menu.js';
+import { baht, cafes, getCafe, menu as initialMenu } from '../data/menu.js';
+import { useMenu } from '../data/MenuContext.jsx';
 
-export function total(items) {
+export function total(items, getItem) {
   return Object.entries(items).reduce((sum, [id, count]) => sum + getItem(id).price * count, 0);
 }
 
-export function getCheckout(basket, requestedCafe, pickupOption) {
+function orderTotal(order) {
+  const subtotal = order.subtotal ?? total(order.items, (id) => initialMenu.find((item) => item.id === id));
+  return subtotal + (order.fee ?? 0);
+}
+
+export function getCheckout(basket, requestedCafe, pickupOption, getItem) {
   const cafe = cafes.find((name) => name === requestedCafe) ?? cafes[0];
   const items = Object.fromEntries(Object.entries(basket).filter(([id]) => getCafe(getItem(id)) === cafe));
-  const subtotal = total(items);
+  const subtotal = total(items, getItem);
   const counter = `${cafe} pickup counter`;
   const pickup = pickupOption === 'counter' ? counter : cafe;
   return { cafe, items, subtotal, fee: subtotal ? 5 : 0, counter, pickup };
 }
 
 export function BasketPage({ basket, orders, changeQuantity, clearCafe }) {
+  const { getItem } = useMenu();
   const [params, setParams] = useSearchParams();
   const [expanded, setExpanded] = useState(null);
   const showOrders = params.get('tab') === 'orders';
@@ -46,7 +53,7 @@ export function BasketPage({ basket, orders, changeQuantity, clearCafe }) {
                   {expanded === order.id && (
                     <ul className="history-details">
                       {Object.entries(order.items).map(([itemId, quantity]) => <li key={itemId}>{quantity}× {getItem(itemId).name}</li>)}
-                      <li>Total {baht(total(order.items) + (order.fee ?? 0))}</li>
+                      <li>Total {baht(orderTotal(order))}</li>
                     </ul>
                   )}
                 </div>
@@ -78,7 +85,7 @@ export function BasketPage({ basket, orders, changeQuantity, clearCafe }) {
                     </article>
                   );
                 })}
-                <div className="spread subtotal"><strong>Subtotal</strong><strong>{baht(total(Object.fromEntries(entries)))}</strong></div>
+                <div className="spread subtotal"><strong>Subtotal</strong><strong>{baht(total(Object.fromEntries(entries), getItem))}</strong></div>
                 <div className="basket-buttons">
                   <button className="outlined" onClick={() => clearCafe(cafe)}>Cancel</button>
                   <Link className="primary" to={`/payment?cafe=${encodeURIComponent(cafe)}`}>Place Order</Link>
@@ -93,8 +100,9 @@ export function BasketPage({ basket, orders, changeQuantity, clearCafe }) {
 }
 
 export function PaymentPage({ basket }) {
+  const { getItem } = useMenu();
   const [params, setParams] = useSearchParams();
-  const { cafe, items, subtotal, fee, counter, pickup } = getCheckout(basket, params.get('cafe'), params.get('pickup'));
+  const { cafe, items, subtotal, fee, counter, pickup } = getCheckout(basket, params.get('cafe'), params.get('pickup'), getItem);
   const [editing, setEditing] = useState(false);
   return (
     <main className="payment-screen">
@@ -139,26 +147,14 @@ export function PaymentPage({ basket }) {
 const statuses = ['Waiting', 'Preparing', 'Ready', 'Done'];
 const nextAction = ['Start Preparing', 'Mark Ready', 'Complete Order'];
 
-export function StaffPage({ orders, advanceOrder }) {
+export function StaffPage({ cafe, orders, advanceOrder }) {
+  const { getItem } = useMenu();
   const [status, setStatus] = useState(statuses[0]);
-  const [settings, setSettings] = useState(false);
-  const cafeOrders = orders.filter((order) => order.cafe === cafes[0]);
+  const cafeOrders = orders.filter((order) => order.cafe === cafe);
   const currentOrders = cafeOrders.filter((order) => order.status === status);
   const next = statuses.indexOf(status) + 1;
   return (
-    <main className="staff-screen">
-      <StatusBar />
-      <section>
-        <div className="spread staff-title"><h1>Cafe Rung — Orders</h1><button aria-label="Staff settings" aria-expanded={settings} onClick={() => setSettings(!settings)}><Icon file="474a4.svg" /></button></div>
-        {settings && (
-          <div className="outlined staff-settings">
-            <p>Cafe Rung queue preview · changes are saved in this browser.</p>
-            <Link className="staff-logout" to="/login" replace>
-              <Icon file="dc0aa.svg" />
-              Log out
-            </Link>
-          </div>
-        )}
+    <>
         <p className="staff-date">28 Sep 2026</p>
         <div className="staff-tabs">
           {statuses.map((name) => {
@@ -172,13 +168,12 @@ export function StaffPage({ orders, advanceOrder }) {
               <div className="spread"><h2>Order #{String(order.id).padStart(3, '0')}</h2><strong>{order.customer}</strong></div>
               <small>Placed: {order.time}</small>
               <ul>{Object.entries(order.items).map(([id, count]) => <li className="spread" key={id}>{getItem(id).name}<strong>×{count}</strong></li>)}</ul>
-              <div className="spread"><span>Total Amount</span><strong>{baht(total(order.items) + (order.fee ?? 0))}</strong></div>
+              <div className="spread"><span>Total Amount</span><strong>{baht(orderTotal(order))}</strong></div>
               {next < statuses.length && <button className="primary" onClick={() => advanceOrder(order.id, statuses[next])}>{nextAction[next - 1]} →</button>}
             </article>
           ))}
           {currentOrders.length === 0 && <p>No {status.toLowerCase()} orders.</p>}
         </div>
-      </section>
-    </main>
+    </>
   );
 }

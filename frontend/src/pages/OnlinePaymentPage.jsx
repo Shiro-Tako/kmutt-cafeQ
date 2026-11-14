@@ -1,17 +1,19 @@
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import { StatusBar } from '../components/layout/CafeLayout.jsx';
 import { baht } from '../data/menu.js';
+import { useMenu } from '../data/MenuContext.jsx';
 import { getCheckout } from './OrderPages.jsx';
 
 export default function OnlinePaymentPage({ basket, placeOrder }) {
+  const { getItem } = useMenu();
   const [params] = useSearchParams();
   const navigate = useNavigate();
-  const { cafe, pickup, items, subtotal, fee } = getCheckout(basket, params.get('cafe'), params.get('pickup'));
+  const { cafe, pickup, items, subtotal, fee } = getCheckout(basket, params.get('cafe'), params.get('pickup'), getItem);
   const checkoutUrl = `/payment?${params.toString()}`;
 
   function completeDemoPayment() {
     if (subtotal === 0) return;
-    placeOrder(cafe, pickup, items, fee);
+    placeOrder(cafe, pickup, items, fee, subtotal);
     navigate('/basket?tab=orders', { replace: true });
   }
 

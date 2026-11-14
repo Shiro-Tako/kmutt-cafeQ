@@ -1,15 +1,17 @@
 import { Link } from 'react-router';
 import CafeLayout, { asset, Icon } from '../components/layout/CafeLayout.jsx';
 import DrinkCard from '../components/common/DrinkCard.jsx';
-import { getItem } from '../data/menu.js';
+import { useMenu } from '../data/MenuContext.jsx';
 
 export default function HomePage() {
+  const { getItem } = useMenu();
+  const featured = getItem('sweet-heaven');
   return (
     <CafeLayout title="Good day, Somchai">
-      <Link className="feature" to="/drink/sweet-heaven">
-        <span><small>Popular at {getItem('sweet-heaven').cafe}</small><strong>Iced Coffee<br />Sweet Heaven</strong><small>More info <Icon file="81ec2.svg" /></small></span>
+      {!featured.archived && <Link className="feature" to="/drink/sweet-heaven">
+        <span><small>Popular at {featured.cafe}</small><strong>{featured.name}</strong><small>More info <Icon file="81ec2.svg" /></small></span>
         <img className="feature-photo" src={asset('39b54.png')} alt="" />
-      </Link>
+      </Link>}
       <section className="recommendations">
         <div className="section-heading"><h2>This week’s recommendations</h2><Link to="/cafes">See all</Link></div>
         <div className="recommendation-row">

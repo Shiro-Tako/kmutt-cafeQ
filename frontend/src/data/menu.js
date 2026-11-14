@@ -16,7 +16,7 @@ export const menu = [
 ];
 
 export const getCafe = (item) => item.cafe;
-export const getItem = (id) => menu.find((item) => item.id === id);
+export const categories = ['Coffee', 'Tea & More', 'Snacks'];
 export const baht = (price) => `฿${price.toLocaleString('en-TH')}`;
 
 export const initialOrders = [
