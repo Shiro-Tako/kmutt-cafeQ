@@ -20,6 +20,10 @@
   --gutter: min(9vw, 35px);
   --nav-height: 87px;
 }
+@media (min-width: 500px) {
+  :root { scrollbar-gutter: stable both-edges; }
+}
+
 body { margin: 0; }
 button, a, select { cursor: pointer; }
 button:disabled { cursor: default; }
