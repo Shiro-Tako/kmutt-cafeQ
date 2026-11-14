@@ -7,18 +7,6 @@ export function Icon({ file, className }) {
   return <img className={className} src={asset(file)} alt="" />;
 }
 
-export function StatusBar() {
-  return (
-    <div className="status-bar" aria-hidden="true">
-      <span>9:41</span>
-      <span className="status-icons">
-        <Icon file="1b501.svg" /><Icon file="59091.svg" />
-        <span className="battery"><Icon file="b209d.svg" /><Icon file="e0680.svg" /><Icon file="55ff2.svg" /></span>
-      </span>
-    </div>
-  );
-}
-
 const tabs = [
   ['/', 'Home', '8a8d4.svg', 'b0f25.svg'],
   ['/cafes', 'Cafes', '4612e.svg', '42cd8.svg'],
@@ -36,7 +24,6 @@ export default function CafeLayout({ title, children }) {
 
   return (
     <div className="cafe-screen">
-      <StatusBar />
       <header className="screen-header">
         <h1>{title}</h1>
         <div className="header-actions">

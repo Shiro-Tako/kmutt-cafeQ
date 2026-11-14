@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
-import CafeLayout, { asset, Icon, StatusBar } from '../components/layout/CafeLayout.jsx';
+import CafeLayout, { asset, Icon } from '../components/layout/CafeLayout.jsx';
 import DrinkCard from '../components/common/DrinkCard.jsx';
 import { baht, cafes, getCafe, menu as initialMenu } from '../data/menu.js';
 import { useMenu } from '../data/MenuContext.jsx';
@@ -106,7 +106,6 @@ export function PaymentPage({ basket }) {
   const [editing, setEditing] = useState(false);
   return (
     <main className="payment-screen">
-      <StatusBar />
       <section className="payment-section pickup-section">
         <h1><Icon file="7a138.svg" /> Pickup at</h1>
         <p>{cafe}</p><p>KMUTT Thonburi campus</p>

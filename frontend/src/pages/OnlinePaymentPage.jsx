@@ -1,5 +1,4 @@
 import { Link, useNavigate, useSearchParams } from 'react-router';
-import { StatusBar } from '../components/layout/CafeLayout.jsx';
 import { baht } from '../data/menu.js';
 import { useMenu } from '../data/MenuContext.jsx';
 import { getCheckout } from './OrderPages.jsx';
@@ -19,7 +18,6 @@ export default function OnlinePaymentPage({ basket, placeOrder }) {
 
   return (
     <main className="payment-screen online-payment">
-      <StatusBar />
       <section className="payment-section">
         <Link className="edit-order" to={checkoutUrl}>← Back to checkout</Link>
         <h1>Online payment</h1>

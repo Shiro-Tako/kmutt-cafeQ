@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { asset, Icon, StatusBar } from '../components/layout/CafeLayout.jsx';
+import { asset, Icon } from '../components/layout/CafeLayout.jsx';
 import { cafes } from '../data/menu.js';
 
 function Brand({ welcome = false }) {
@@ -10,7 +10,6 @@ function Brand({ welcome = false }) {
 export function WelcomePage() {
   return (
     <main className="welcome-screen" style={{ '--wallpaper': `url("${asset('86a85.png')}")` }}>
-      <StatusBar />
       <Link className="welcome-link" to="/login" aria-label="Continue to KMUTT CafeQ"><Brand welcome /></Link>
     </main>
   );
@@ -43,7 +42,6 @@ export function LoginPage({ staff = false, onStaffLogin }) {
   return (
     <main className="login-screen">
       <div className="login-wallpaper" style={{ '--wallpaper': `url("${asset('86a85.png')}")` }} />
-      <StatusBar />
       <Brand />
       <section className={staff ? 'login-panel outlined staff-access' : 'login-panel outlined'}>
         {staff && <><h2>Store access</h2><p>Demo only. Use sample credentials.</p></>}

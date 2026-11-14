@@ -85,7 +85,7 @@ export function DrinkPage({ favorites, toggleFavorite, addToBasket }) {
       <section className="detail-copy">
         <h1>{item.name}</h1>
         <small className="item-cafe">{getCafe(item)}</small>
-        <p>{item.description}</p>
+        {item.description && <div className="detail-description"><h2>Description</h2><p>{item.description}</p></div>}
         <b>{baht(item.price)}</b>
         <div className="quantity">
           <button className="square-button" aria-label="Decrease quantity" disabled={quantity === 1} onClick={() => setQuantity(quantity - 1)}>−</button>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router';
-import { asset, Icon, StatusBar } from '../components/layout/CafeLayout.jsx';
+import { asset, Icon } from '../components/layout/CafeLayout.jsx';
 import { useMenu } from '../data/MenuContext.jsx';
 import { baht, categories } from '../data/menu.js';
 
@@ -10,7 +10,6 @@ export function StaffLayout({ cafe, onLogout }) {
 
   return (
     <main className="staff-screen">
-      <StatusBar />
       <section>
         <div className="spread staff-title">
           <h1>{cafe} — {pathname.endsWith('/menu') ? 'Menu' : 'Orders'}</h1>
