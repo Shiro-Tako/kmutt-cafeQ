@@ -20,6 +20,10 @@
   --gutter: min(9vw, 35px);
   --nav-height: 87px;
 }
+@media (min-width: 500px) {
+  :root { scrollbar-gutter: stable both-edges; }
+}
+
 body { margin: 0; }
 button, a, select { cursor: pointer; }
 button:disabled { cursor: default; }
@@ -265,5 +269,62 @@ h1, h2, .feature strong, .menu-item-copy strong, .drink-card strong { font-famil
 .detail-description { padding: 10px 12px; border: 1px solid var(--line); }
 .bottom-nav a[aria-current="page"] { border-radius: 10px; background: #3d2012b8; padding-top: 3px; align-self: start; }
 .bottom-nav a[aria-current="page"] { color: #ffc3a8; }
+
+/* Share press feedback across native buttons and links styled as controls. */
+:is(button, a) {
+  touch-action: manipulation;
+}
+
+:is(button:enabled, a), :is(.menu-item, .drink-card) {
+  transition: scale 140ms ease-out, filter 140ms ease-out, background-color 140ms ease-out;
+}
+
+:is(button:enabled, a):active, :is(.menu-item, .drink-card):has(> a:active) {
+  scale: .96;
+  filter: brightness(.91);
+}
+
+/* Card links share the outer card's press effect, including its border and shadow. */
+:is(.menu-item, .drink-card) > a:active {
+  scale: none;
+  filter: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :is(button:enabled, .primary, .square-button, .bottom-nav a, .staff-nav a):hover:not(:active) {
+    filter: brightness(.94);
+  }
+}
+
+.header-actions button, .staff-title button {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.bottom-nav a {
+  justify-content: flex-start;
+  min-height: 52px;
+  padding-top: 3px;
+}
+
+@media (pointer: coarse) {
+  .detail-actions :is(a, button), .detail-copy .square-button,
+  .basket-buttons > *, .checkout-actions > *, .staff-card-actions button {
+    min-height: 44px;
+  }
+
+  .detail-actions :is(a, button), .detail-copy .square-button {
+    min-width: 44px;
+  }
+
+  .basket-row .quantity button {
+    min-height: 36px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(button:enabled, a, .menu-item, .drink-card) { transition: none; }
+  :is(button:enabled, a):active, :is(.menu-item, .drink-card):has(> a:active) { scale: none; }
+}
 .header-actions img, .staff-title img, .staff-logout img, .profile-menu img[src$=".svg"], .password-field img { filter: brightness(0) saturate(100%) invert(23%) sepia(84%) saturate(1620%) hue-rotate(355deg); }
 .detail-description, .online-summary { background: linear-gradient(135deg, var(--surface), #fae5d7); }
