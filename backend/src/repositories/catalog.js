@@ -1,3 +1,5 @@
+import { mysqlCatalog } from './mysqlCatalog.js';
+
 const cafes = [
   { cafeId: 1, name: 'Cafe Rung', pickupPoint: 'Cafe Rung pickup counter' },
   { cafeId: 2, name: 'Food Court', pickupPoint: 'Food Court pickup counter' },
@@ -35,3 +37,25 @@ export async function listMenuItems({ cafeId, category, q = '' }) {
 export async function findMenuItem(id) {
   return menu.find((item) => item.menuItemId === id && item.isActive) ?? null;
 }
+
+let nextId = 113;
+const mockCatalog = {
+  listCafes,
+  listMenuItems,
+  findMenuItem,
+  async addMenuItem(cafeId, details) {
+    const item = { imageUrl: null, ...details, menuItemId: nextId++, cafeId, isActive: true };
+    menu.push(item);
+    return item;
+  },
+  async editMenuItem(cafeId, id, details) {
+    const item = await findMenuItem(id);
+    return item?.cafeId === cafeId ? Object.assign(item, details) : null;
+  },
+  async archiveMenuItem(cafeId, id) {
+    const item = await this.editMenuItem(cafeId, id, { isActive: false });
+    return Boolean(item);
+  },
+};
+
+export const catalog = process.env.CATALOG_SOURCE === 'mysql' ? mysqlCatalog : mockCatalog;
