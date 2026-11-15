@@ -1,6 +1,6 @@
 # ข้อตกลง API · KMUTT CafeQ
 
-สถานะเป็นร่างสำหรับทีมยืนยัน ยกเว้น `GET /api/health` ที่ใช้งานได้แล้ว Frontend เรียก URL แบบ `/api/...` ผ่าน Vite proxy และ Backend อ่านข้อมูลจาก MySQL เมื่อเชื่อมระบบแล้ว
+ข้อตกลงยังเป็นร่างสำหรับทีมยืนยัน `GET /api/health` และ API อ่านร้านและเมนูเปิดใช้แล้วบน branch `frontend-catalog` โดยใช้ข้อมูลจำลองเป็นค่าเริ่มต้น Frontend เรียก URL แบบ `/api/...` ผ่าน Vite proxy ดูวิธีเปิดโหมด MySQL และเชื่อมสิทธิ์พนักงานใน [คู่มือ Backend](backend-handoff.md)
 
 ## รูปแบบร่วม
 

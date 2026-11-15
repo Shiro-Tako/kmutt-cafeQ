@@ -22,6 +22,13 @@
 
 ## ต่อ MySQL ในเครื่อง
 
+### เชื่อม Catalog ของสมาชิกคนที่ 1
+
+- API อ่านร้านและเมนูเปิดใช้กับข้อมูลจำลองตามค่าเริ่มต้น ใช้ `CATALOG_SOURCE=mysql` ใน `backend/.env` เมื่อ schema และ seed พร้อม
+- ใน `server.js` ให้ใช้ named export `createCatalogRouter(requireStaffCafe)` จาก `routes/catalog.js` แทน router ค่าเริ่มต้น แล้ว mount ใต้ `/api` เช่นเดิม ส่ง middleware ที่ตรวจเซสชันและสิทธิ์ร้านจาก `request.params.cafeId` เข้ามา โดยเรียก `next()` เฉพาะเมื่อมีสิทธิ์ ค่าเริ่มต้นของ router ตอบ `503` สำหรับการเขียนจนกว่าจะเสียบ middleware
+- ตั้ง `VITE_ACCOUNT_API=true` ใน `frontend/.env` แล้วรีสตาร์ต Vite เมื่อ API บัญชี รายการโปรด checkout และออเดอร์พร้อมทดสอบร่วมกัน ค่าเริ่มต้นใช้โหมดเดโมสำหรับงานส่วนนี้
+- ทดสอบ Catalog ด้วย `node --test backend/test/menu.test.js` จากรากโปรเจกต์ในโหมด mock
+
 1. สมาชิกคนที่ 3 เตรียมฐานข้อมูล `kmutt_cafeq` และบัญชี MySQL สำหรับแอป แล้วรัน `database/schema.sql` ตามด้วย `database/seed.sql` เมื่อ SQL พร้อม ทั้งสองไฟล์ยังเป็นโครงในรีโปปัจจุบัน
 2. สมาชิกที่ทำ Backend คัดลอก `backend/.env.example` เป็น `backend/.env` จากนั้นใส่ค่าของเครื่องตัวเอง เก็บรหัสผ่านจริงไว้ในไฟล์ `.env` ที่ Git ignore
 

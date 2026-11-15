@@ -1,34 +1,48 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import CafeLayout, { asset, Icon } from '../components/layout/CafeLayout.jsx';
 import DrinkCard from '../components/common/DrinkCard.jsx';
-import { baht, cafes, getCafe, menu as initialMenu } from '../data/menu.js';
+import { baht, menu as initialMenu } from '../data/menu.js';
 import { useMenu } from '../data/MenuContext.jsx';
+import { useApiResource } from '../hooks/useApiResource.js';
+import { sessionEnabled } from '../services/auth.js';
+import { getOrders, getStaffOrders, toDisplayOrder, updateOrderStatus } from '../services/orders.js';
 
 export function total(items, getItem) {
   return Object.entries(items).reduce((sum, [id, count]) => sum + getItem(id).price * count, 0);
 }
 
 function orderTotal(order) {
+  if (order.total !== undefined) return order.total;
   const subtotal = order.subtotal ?? total(order.items, (id) => initialMenu.find((item) => item.id === id));
   return subtotal + (order.fee ?? 0);
 }
 
-export function getCheckout(basket, requestedCafe, pickupOption, getItem) {
-  const cafe = cafes.find((name) => name === requestedCafe) ?? cafes[0];
-  const items = Object.fromEntries(Object.entries(basket).filter(([id]) => getCafe(getItem(id)) === cafe));
-  const subtotal = total(items, getItem);
-  const counter = `${cafe} pickup counter`;
-  const pickup = pickupOption === 'counter' ? counter : cafe;
-  return { cafe, items, subtotal, fee: subtotal ? 5 : 0, counter, pickup };
+function orderLines(order, getItem) {
+  return order.lines ?? Object.entries(order.items).map(([id, quantity]) => ({ id, quantity, name: getItem(id)?.name ?? 'Unavailable item' }));
 }
 
-export function BasketPage({ basket, orders, changeQuantity, clearCafe }) {
-  const { getItem } = useMenu();
+export function getCheckout(basket, requestedCafe, pickupOption, getItem, cafes) {
+  const store = cafes.find(({ name }) => name === requestedCafe) ?? cafes[0];
+  const cafe = store?.name;
+  const items = Object.fromEntries(Object.entries(basket).filter(([id]) => {
+    const item = getItem(id);
+    return item && !item.archived && item.cafe === cafe;
+  }));
+  const subtotal = total(items, getItem);
+  const counter = store?.pickupPoint ?? `${cafe} pickup counter`;
+  const pickup = pickupOption === 'counter' ? counter : cafe;
+  return { cafe, cafeId: store?.cafeId, items, subtotal, fee: subtotal ? 5 : 0, counter, pickup };
+}
+
+export function BasketPage({ basket, orders, account, changeQuantity, clearCafe }) {
+  const { getItem, cafes, loading: catalogLoading, error: catalogError } = useMenu();
   const [params, setParams] = useSearchParams();
   const [expanded, setExpanded] = useState(null);
   const showOrders = params.get('tab') === 'orders';
-  const myOrders = orders.filter((order) => order.customer === 'Somchai P.');
+  const loadOrders = useCallback((signal) => account ? getOrders(signal) : null, [account]);
+  const history = useApiResource(loadOrders, sessionEnabled && showOrders && Boolean(account), 5000);
+  const myOrders = sessionEnabled ? (history.data?.items ?? []).map((order) => toDisplayOrder(order, cafes)) : orders.filter((order) => order.customer === 'Somchai P.');
   return (
     <CafeLayout title="Your Basket">
       <div className="segments basket-tabs">
@@ -37,22 +51,27 @@ export function BasketPage({ basket, orders, changeQuantity, clearCafe }) {
       </div>
       {showOrders ? (
         <div className="order-list">
+          {sessionEnabled && !account && <Link to="/login">Log in to see your orders</Link>}
+          {history.loading && <p role="status">Loading orders…</p>}
+          {history.error && <p role="alert">{history.error}</p>}
+          {(!sessionEnabled || account) && !history.loading && !history.error && myOrders.length === 0 && <p>No orders yet.</p>}
           {myOrders.map((order) => {
-            const [id, count] = Object.entries(order.items)[0];
-            const item = getItem(id);
+            const lines = orderLines(order, getItem);
+            const first = lines[0];
+            const item = getItem(first?.id);
             return (
               <article className="outlined history-card" key={order.id}>
-                <span className="history-photo">{item.image && <img src={asset(item.image)} alt="" />}</span>
+                <span className="history-photo">{item?.image && <img src={asset(item.image)} alt="" />}</span>
                 <div>
                   <div className="spread"><small>{order.cafe}</small><small>{order.date}</small></div>
-                  <p>{count}x　<strong>{item.name}</strong></p>
+                  <p>{first?.quantity}x　<strong>{first?.name}</strong></p>
                   <div className="spread history-footer">
                     <button aria-expanded={expanded === order.id} onClick={() => setExpanded(expanded === order.id ? null : order.id)}>Details</button>
                     <strong className="order-status">{order.status}</strong>
                   </div>
                   {expanded === order.id && (
                     <ul className="history-details">
-                      {Object.entries(order.items).map(([itemId, quantity]) => <li key={itemId}>{quantity}× {getItem(itemId).name}</li>)}
+                      {lines.map(({ id, name, quantity }) => <li key={id}>{quantity}× {name}</li>)}
                       <li>Total {baht(orderTotal(order))}</li>
                     </ul>
                   )}
@@ -64,8 +83,13 @@ export function BasketPage({ basket, orders, changeQuantity, clearCafe }) {
       ) : (
         <div className="basket-list">
           {Object.keys(basket).length === 0 && <p>Your basket is empty. <Link to="/cafes">Browse the menu</Link></p>}
-          {cafes.map((cafe) => {
-            const entries = Object.entries(basket).filter(([id]) => getCafe(getItem(id)) === cafe);
+          {catalogLoading && <p role="status">Loading menu…</p>}
+          {catalogError && <p role="alert">{catalogError}</p>}
+          {!catalogLoading && !catalogError && Object.keys(basket).filter((id) => !getItem(id) || getItem(id).archived).map((id) => (
+            <p key={id}>An item is unavailable. <button onClick={() => changeQuantity(id, -basket[id])}>Remove item</button></p>
+          ))}
+          {cafes.map(({ name: cafe }) => {
+            const entries = Object.entries(basket).filter(([id]) => getItem(id)?.cafe === cafe && !getItem(id).archived);
             if (entries.length === 0) return null;
             return (
               <section className="basket-group" key={cafe}>
@@ -100,10 +124,11 @@ export function BasketPage({ basket, orders, changeQuantity, clearCafe }) {
 }
 
 export function PaymentPage({ basket }) {
-  const { getItem } = useMenu();
+  const { getItem, cafes, loading, error } = useMenu();
   const [params, setParams] = useSearchParams();
-  const { cafe, items, subtotal, fee, counter, pickup } = getCheckout(basket, params.get('cafe'), params.get('pickup'), getItem);
+  const { cafe, items, subtotal, fee, counter, pickup } = getCheckout(basket, params.get('cafe'), params.get('pickup'), getItem, cafes);
   const [editing, setEditing] = useState(false);
+  const recommendations = ['coffee-lemonade', 'lemonade'].map(getItem).filter(Boolean);
   return (
     <main className="payment-screen">
       <section className="payment-section pickup-section">
@@ -112,14 +137,16 @@ export function PaymentPage({ basket }) {
         <hr />
         <h2><Icon file="26886.svg" /> Pickup point</h2>
         <div className="spread">
-          {editing
+          {editing && !sessionEnabled
             ? <select aria-label="Pickup point" value={pickup} onChange={(event) => setParams({ cafe, pickup: event.target.value === counter ? 'counter' : 'cafe' }, { replace: true })}><option>{cafe}</option><option>{counter}</option></select>
-            : <p>{pickup}</p>}
-          <button onClick={() => setEditing(!editing)}>{editing ? 'Done' : 'Edit'}</button>
+            : <p>{sessionEnabled ? counter : pickup}</p>}
+          {!sessionEnabled && <button onClick={() => setEditing(!editing)}>{editing ? 'Done' : 'Edit'}</button>}
         </div>
       </section>
       <section className="payment-section">
         <h2>Your order</h2>
+        {loading && <p role="status">Loading menu…</p>}
+        {error && <p role="alert">{error}</p>}
         {Object.entries(items).map(([id, count]) => (
           <div className="spread" key={id}><p>{count}x　{getItem(id).name}</p><p>{baht(getItem(id).price * count)}</p></div>
         ))}
@@ -127,12 +154,11 @@ export function PaymentPage({ basket }) {
         <hr />
         <div className="section-heading"><h3>Add more to your order</h3><Link to="/cafes">See all</Link></div>
         <div className="payment-recommendations">
-          <DrinkCard item={{ ...getItem('coffee-lemonade'), image: '1d2da.png' }} />
-          <DrinkCard item={{ ...getItem('lemonade'), image: '7ea1a.png' }} />
+          {recommendations.map((item) => <DrinkCard key={item.id} item={item} />)}
         </div>
         <div className="spread"><p>Subtotal</p><p>{baht(subtotal)}</p></div>
         <div className="spread"><p>Packaging fee</p><p>{baht(fee)}</p></div>
-        <div className="spread payment-total"><strong>TOTAL</strong><strong>{baht(subtotal + fee)}</strong></div>
+        <div className="spread payment-total"><strong>{sessionEnabled ? 'Estimated total' : 'TOTAL'}</strong><strong>{baht(subtotal + fee)}</strong></div>
       </section>
       <section className="payment-section">
         {subtotal > 0 ? (
@@ -146,15 +172,34 @@ export function PaymentPage({ basket }) {
 const statuses = ['Waiting', 'Preparing', 'Ready', 'Done'];
 const nextAction = ['Start Preparing', 'Mark Ready', 'Complete Order'];
 
-export function StaffPage({ cafe, orders, advanceOrder }) {
-  const { getItem } = useMenu();
+export function StaffPage({ cafe, cafeId, orders, advanceOrder }) {
+  const { getItem, cafes } = useMenu();
   const [status, setStatus] = useState(statuses[0]);
-  const cafeOrders = orders.filter((order) => order.cafe === cafe);
+  const [pending, setPending] = useState(null);
+  const [error, setError] = useState('');
+  const loadOrders = useCallback((signal) => getStaffOrders(cafeId, signal), [cafeId]);
+  const queue = useApiResource(loadOrders, sessionEnabled && Boolean(cafeId), 5000);
+  const cafeOrders = sessionEnabled ? (queue.data?.items ?? []).map((order) => toDisplayOrder(order, cafes)) : orders.filter((order) => order.cafe === cafe);
   const currentOrders = cafeOrders.filter((order) => order.status === status);
   const next = statuses.indexOf(status) + 1;
+  async function advance(id) {
+    if (!sessionEnabled) return advanceOrder(id, statuses[next]);
+    setError('');
+    setPending(id);
+    try {
+      await updateOrderStatus(cafeId, id, statuses[next]);
+      queue.refresh();
+    } catch (failure) {
+      setError(failure.message);
+      queue.refresh();
+    } finally {
+      setPending(null);
+    }
+  }
   return (
     <>
-        <p className="staff-date">28 Sep 2026</p>
+        {queue.loading && <p role="status">Loading queue…</p>}
+        {(error || queue.error) && <p role="alert">{error || queue.error}</p>}
         <div className="staff-tabs">
           {statuses.map((name) => {
             const count = cafeOrders.filter((order) => order.status === name).length;
@@ -166,12 +211,12 @@ export function StaffPage({ cafe, orders, advanceOrder }) {
             <article key={order.id} className="outlined staff-card">
               <div className="spread"><h2>Order #{String(order.id).padStart(3, '0')}</h2><strong>{order.customer}</strong></div>
               <small>Placed: {order.time}</small>
-              <ul>{Object.entries(order.items).map(([id, count]) => <li className="spread" key={id}>{getItem(id).name}<strong>×{count}</strong></li>)}</ul>
+              <ul>{orderLines(order, getItem).map(({ id, name, quantity }) => <li className="spread" key={id}>{name}<strong>×{quantity}</strong></li>)}</ul>
               <div className="spread"><span>Total Amount</span><strong>{baht(orderTotal(order))}</strong></div>
-              {next < statuses.length && <button className="primary" onClick={() => advanceOrder(order.id, statuses[next])}>{nextAction[next - 1]} →</button>}
+              {next < statuses.length && <button className="primary" disabled={pending !== null} onClick={() => advance(order.id)}>{nextAction[next - 1]} →</button>}
             </article>
           ))}
-          {currentOrders.length === 0 && <p>No {status.toLowerCase()} orders.</p>}
+          {!queue.loading && !queue.error && currentOrders.length === 0 && <p>No {status.toLowerCase()} orders.</p>}
         </div>
     </>
   );

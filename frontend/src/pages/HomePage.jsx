@@ -4,20 +4,22 @@ import DrinkCard from '../components/common/DrinkCard.jsx';
 import { useMenu } from '../data/MenuContext.jsx';
 
 export default function HomePage() {
-  const { getItem } = useMenu();
-  const featured = getItem('sweet-heaven');
+  const { menu, loading, error, refresh, account } = useMenu();
+  const available = menu.filter((item) => !item.archived);
+  const featured = available.find((item) => item.id === 'sweet-heaven') ?? available[0];
+  const recommended = available.filter((item) => item.id !== featured?.id).slice(0, 3);
   return (
-    <CafeLayout title="Good day, Somchai">
-      {!featured.archived && <Link className="feature" to="/drink/sweet-heaven">
+    <CafeLayout title={account ? `Good day, ${account.name}` : 'Good day, Somchai'}>
+      {error && <p role="alert">{error} <button onClick={refresh}>Retry catalog</button></p>}
+      {loading && <p role="status">Loading menu…</p>}
+      {featured && <Link className="feature" to={`/drink/${featured.id}`}>
         <span><small>Popular at {featured.cafe}</small><strong>{featured.name}</strong><small>More info <Icon file="81ec2.svg" /></small></span>
-        <img className="feature-photo" src={asset('39b54.png')} alt="" />
+        {featured.image && <img className="feature-photo" src={asset(featured.id === 'sweet-heaven' ? '39b54.png' : featured.image)} alt="" />}
       </Link>}
       <section className="recommendations">
         <div className="section-heading"><h2>This week’s recommendations</h2><Link to="/cafes">See all</Link></div>
         <div className="recommendation-row">
-          <DrinkCard item={getItem('americano')} />
-          <DrinkCard item={{ ...getItem('cappuccino'), image: '61865.png' }} />
-          <DrinkCard item={{ ...getItem('iced-chocolate'), image: '7c328.png' }} />
+          {recommended.map((item) => <DrinkCard key={item.id} item={item} />)}
         </div>
       </section>
       <section className="shop">

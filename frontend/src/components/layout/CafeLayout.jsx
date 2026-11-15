@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { Link, NavLink } from 'react-router';
+import { Link, NavLink, useNavigate } from 'react-router';
+import { useMenu } from '../../data/MenuContext.jsx';
+import { sessionEnabled } from '../../services/auth.js';
 
-export const asset = (file) => `${import.meta.env.BASE_URL}figma/${file}`;
+export const asset = (file) => file.startsWith('/') || file.startsWith('https://') ? file : `${import.meta.env.BASE_URL}figma/${file}`;
 
 export function Icon({ file, className }) {
   return <img className={className} src={asset(file)} alt="" />;
@@ -15,6 +17,8 @@ const tabs = [
 ];
 
 export default function CafeLayout({ title, children }) {
+  const { account, logout } = useMenu();
+  const navigate = useNavigate();
   const [panel, setPanel] = useState('');
   const [notice, setNotice] = useState('');
   const toggle = (name) => {
@@ -32,8 +36,11 @@ export default function CafeLayout({ title, children }) {
         </div>
         {panel === 'menu' && (
           <div className="profile-menu">
-            <button onClick={() => setNotice('Customer preview · Somchai P.')}><Icon file="49e89.png" />Profile</button>
-            <Link to="/login"><Icon file="dc0aa.svg" />Logout</Link>
+            <button onClick={() => setNotice(account?.name ?? (sessionEnabled ? 'Guest' : 'Customer preview · Somchai P.'))}><Icon file="49e89.png" />Profile</button>
+            {sessionEnabled && account ? <button onClick={async () => {
+              try { await logout(); navigate('/login'); }
+              catch (error) { setNotice(error.message); }
+            }}><Icon file="dc0aa.svg" />Logout</button> : <Link to="/login"><Icon file="dc0aa.svg" />{sessionEnabled ? 'Log in' : 'Logout'}</Link>}
           </div>
         )}
         {panel === 'notifications' && <p className="header-notice" role="status">Check My Order for pickup updates.</p>}

@@ -1,13 +1,19 @@
+import { useCallback, useEffect, useState } from 'react';
 import { Link, Navigate, Route, Routes, useParams } from 'react-router';
-import { getCafe, initialOrders, menu as initialMenu } from './data/menu.js';
+import { initialOrders, menu as initialMenu } from './data/menu.js';
 import { MenuContext } from './data/MenuContext.jsx';
 import useStoredState from './hooks/useStoredState.js';
+import { useCatalog } from './hooks/useCatalog.js';
 import { LoginPage, WelcomePage } from './pages/AccessPages.jsx';
 import { CafesPage, DrinkPage, FavoritesPage } from './pages/CatalogPages.jsx';
 import HomePage from './pages/HomePage.jsx';
 import OnlinePaymentPage from './pages/OnlinePaymentPage.jsx';
 import { BasketPage, PaymentPage, StaffPage } from './pages/OrderPages.jsx';
 import { StaffLayout, StaffMenuPage } from './pages/StaffMenuPage.jsx';
+import { getSession, sessionEnabled, signOut } from './services/auth.js';
+import { demoItemIds, writeMenuItem } from './services/catalog.js';
+import { getFavorites, saveFavorite } from './services/favorites.js';
+import { useApiResource } from './hooks/useApiResource.js';
 
 function DrinkRoute(props) {
   const { id } = useParams();
@@ -16,34 +22,84 @@ function DrinkRoute(props) {
 
 export default function App() {
   const [favorites, setFavorites] = useStoredState('cafeq-favorites', ['sweet-heaven', 'iced-chocolate', 'lemonade', 'cappuccino', 'lemon-tea']);
-  const [basket, setBasket] = useStoredState('cafeq-basket', { lemonade: 2, 'sweet-heaven': 1, 'hot-chocolate': 2, 'thai-tea': 1, cake: 1 });
+  const [basket, setBasket] = useStoredState(sessionEnabled ? 'cafeq-account-basket' : 'cafeq-basket', sessionEnabled ? {} : { lemonade: 2, 'sweet-heaven': 1, 'hot-chocolate': 2, 'thai-tea': 1, cake: 1 });
   const [orders, setOrders] = useStoredState('cafeq-orders', initialOrders);
   const [menu, setMenu] = useStoredState('cafeq-menu', initialMenu);
   const [staffCafe, setStaffCafe] = useStoredState('cafeq-staff-cafe', '');
-  const getItem = (id) => menu.find((item) => item.id === id);
+  const catalog = useCatalog(menu);
+  const { getItem } = catalog;
+  const [account, setAccount] = useState(null);
+  const [sessionLoading, setSessionLoading] = useState(sessionEnabled);
+  const [selectedCafe, setSelectedCafe] = useState(null);
+  const [favoriteError, setFavoriteError] = useState('');
+  const loadFavorites = useCallback((signal) => account ? getFavorites(signal) : null, [account]);
+  const saved = useApiResource(loadFavorites, sessionEnabled && Boolean(account));
+  const activeFavorites = sessionEnabled
+    ? (saved.data?.items ?? []).map(({ menuItemId }) => demoItemIds[menuItemId] ?? String(menuItemId))
+    : favorites;
+  const allowedCafes = catalog.cafes.filter(({ cafeId }) => account?.staffCafeIds?.includes(cafeId));
+  const staffStore = allowedCafes.find(({ name }) => name === selectedCafe) ?? allowedCafes[0];
+  const activeStaffCafe = sessionEnabled ? staffStore?.name : staffCafe;
+
+  useEffect(() => {
+    if (!sessionEnabled) return;
+    const controller = new AbortController();
+    getSession(controller.signal).then((user) => {
+      if (!controller.signal.aborted) setAccount(user);
+    }).catch(() => {}).finally(() => {
+      if (!controller.signal.aborted) setSessionLoading(false);
+    });
+    return () => controller.abort();
+  }, []);
+
+  async function logout() {
+    if (sessionEnabled) await signOut();
+    setAccount(null);
+    setSelectedCafe(null);
+    setStaffCafe('');
+  }
 
   function editMenuItem(id, details) {
+    if (sessionEnabled) return writeMenuItem(staffStore.cafeId, getItem(id).menuItemId, details).then(catalog.refresh);
     setMenu((current) => current.map((item) => item.id === id && item.cafe === staffCafe && !item.archived ? { ...item, ...details } : item));
   }
 
   function addMenuItem(item) {
+    if (sessionEnabled) return writeMenuItem(staffStore.cafeId, null, item).then(catalog.refresh);
     setMenu((current) => [...current, { ...item, id: crypto.randomUUID(), cafe: staffCafe }]);
   }
 
-  function deleteMenuItem(id) {
+  async function deleteMenuItem(id) {
     const item = getItem(id);
-    if (!item || item.cafe !== staffCafe || item.archived) return;
-    editMenuItem(id, { archived: true });
+    if (!item || item.cafe !== activeStaffCafe || item.archived) return;
+    if (sessionEnabled) {
+      await writeMenuItem(staffStore.cafeId, item.menuItemId);
+      catalog.refresh();
+      saved.refresh();
+    } else {
+      editMenuItem(id, { archived: true });
+    }
     changeQuantity(id, -(basket[id] ?? 0));
     setFavorites((current) => current.filter((favorite) => favorite !== id));
   }
 
-  function toggleFavorite(id) {
+  async function toggleFavorite(id) {
+    if (sessionEnabled) {
+      try {
+        setFavoriteError('');
+        if (!account) throw new Error('Log in to save favorites.');
+        await saveFavorite(getItem(id).menuItemId, !activeFavorites.includes(id));
+        saved.refresh();
+      } catch (error) {
+        setFavoriteError(error.message);
+      }
+      return;
+    }
     setFavorites((current) => current.includes(id) ? current.filter((favorite) => favorite !== id) : [...current, id]);
   }
 
   function changeQuantity(id, change) {
-    if (change > 0 && getItem(id)?.archived) return;
+    if (change > 0 && (!getItem(id) || getItem(id).archived)) return;
     setBasket((current) => {
       const next = { ...current };
       const quantity = (next[id] ?? 0) + change;
@@ -54,7 +110,7 @@ export default function App() {
   }
 
   function clearCafe(cafe) {
-    setBasket((current) => Object.fromEntries(Object.entries(current).filter(([id]) => getCafe(getItem(id)) !== cafe)));
+    setBasket((current) => Object.fromEntries(Object.entries(current).filter(([id]) => getItem(id)?.cafe !== cafe)));
   }
 
   function placeOrder(cafe, pickup, items, fee, subtotal) {
@@ -79,22 +135,22 @@ export default function App() {
   }
 
   return (
-    <MenuContext.Provider value={{ menu, getItem }}>
+    <MenuContext.Provider value={{ ...catalog, account, logout, staffStore, allowedCafes, selectStaffCafe: setSelectedCafe }}>
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/welcome" element={<WelcomePage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/staff/login" element={<LoginPage key="staff" staff onStaffLogin={setStaffCafe} />} />
+      <Route path="/login" element={<LoginPage onAccount={setAccount} />} />
+      <Route path="/staff/login" element={<LoginPage key="staff" staff onAccount={setAccount} onStaffLogin={sessionEnabled ? setSelectedCafe : setStaffCafe} />} />
       <Route path="/cafes" element={<CafesPage />} />
-      <Route path="/drink/:id" element={<DrinkRoute favorites={favorites} toggleFavorite={toggleFavorite} addToBasket={changeQuantity} />} />
-      <Route path="/favorites" element={<FavoritesPage favorites={favorites} toggleFavorite={toggleFavorite} />} />
-      <Route path="/basket" element={<BasketPage basket={basket} orders={orders} changeQuantity={changeQuantity} clearCafe={clearCafe} />} />
+      <Route path="/drink/:id" element={<DrinkRoute favorites={activeFavorites} favoriteError={favoriteError} toggleFavorite={toggleFavorite} addToBasket={changeQuantity} />} />
+      <Route path="/favorites" element={<FavoritesPage favorites={activeFavorites} loading={saved.loading} error={favoriteError || saved.error} toggleFavorite={toggleFavorite} />} />
+      <Route path="/basket" element={<BasketPage basket={basket} orders={orders} account={account} changeQuantity={changeQuantity} clearCafe={clearCafe} />} />
       <Route path="/payment" element={<PaymentPage basket={basket} />} />
-      <Route path="/payment/online" element={<OnlinePaymentPage basket={basket} placeOrder={placeOrder} />} />
-      <Route path="/staff" element={staffCafe ? <StaffLayout cafe={staffCafe} onLogout={() => setStaffCafe('')} /> : <Navigate to="/staff/login" replace />}>
+      <Route path="/payment/online" element={<OnlinePaymentPage basket={basket} placeOrder={placeOrder} clearCafe={clearCafe} account={account} />} />
+      <Route path="/staff" element={sessionLoading ? <p role="status">Checking session…</p> : activeStaffCafe ? <StaffLayout cafe={activeStaffCafe} onLogout={logout} /> : <Navigate to="/staff/login" replace />}>
         <Route index element={<Navigate to="orders" replace />} />
-        <Route path="orders" element={<StaffPage cafe={staffCafe} orders={orders} advanceOrder={advanceOrder} />} />
-        <Route path="menu" element={<StaffMenuPage key={staffCafe} cafe={staffCafe} editMenuItem={editMenuItem} addMenuItem={addMenuItem} deleteMenuItem={deleteMenuItem} />} />
+        <Route path="orders" element={<StaffPage cafe={activeStaffCafe} cafeId={staffStore?.cafeId} orders={orders} advanceOrder={advanceOrder} />} />
+        <Route path="menu" element={<StaffMenuPage key={activeStaffCafe} cafe={activeStaffCafe} editMenuItem={editMenuItem} addMenuItem={addMenuItem} deleteMenuItem={deleteMenuItem} />} />
       </Route>
       <Route path="*" element={<main className="missing"><h1>Page not found</h1><Link to="/">Back to home</Link></main>} />
     </Routes>
