@@ -1,4 +1,5 @@
 import { mysqlCatalog } from './mysqlCatalog.js';
+import { demoCatalog } from '../demo/catalog.js';
 
 const cafes = [
   { cafeId: 1, name: 'Cafe Rung', pickupPoint: 'Cafe Rung pickup counter' },
@@ -58,4 +59,5 @@ const mockCatalog = {
   },
 };
 
-export const catalog = process.env.CATALOG_SOURCE === 'mysql' ? mysqlCatalog : mockCatalog;
+export const catalog = process.env.CATALOG_SOURCE === 'mysql' ? mysqlCatalog
+  : process.env.CATALOG_SOURCE === 'mock' ? mockCatalog : demoCatalog;
