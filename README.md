@@ -2,6 +2,8 @@
 
 This branch contains the complete demo. Start with [the demo guide and sample accounts](docs/demo-version.md).
 
+To host the app and MySQL on your own laptop, use [the laptop server guide](docs/laptop-server.md).
+
 A university project for managing café queues. The frontend includes customer ordering and staff demos. Express currently provides a health endpoint.
 
 ## Team development

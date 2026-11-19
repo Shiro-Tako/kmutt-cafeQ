@@ -2,6 +2,8 @@
 
 Branch `demo-version` runs the complete customer and staff flow with Express and a local JSON data file. It uses the existing API contract. Run one backend process at a time against each demo data file.
 
+For the laptop-hosted MySQL version and public HTTPS link, follow [the laptop server guide](laptop-server.md). The laptop launcher sets DATA_STORE=mysql and creates separate database credentials. The JSON instructions below apply when running the backend directly.
+
 From the repository root, install dependencies with `npm.cmd --prefix backend ci` and `npm.cmd --prefix frontend ci`. Start these commands in two PowerShell windows:
 
 ```powershell
