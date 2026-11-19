@@ -4,6 +4,8 @@ import express from 'express';
 import healthRoutes from './routes/health.js';
 import { createCatalogRouter } from './routes/catalog.js';
 import demoRoutes, { requireDemoStaff } from './demo/router.js';
+import { existsSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 
 const app = express();
 const port = Number(process.env.PORT || 3000);
@@ -14,6 +16,12 @@ app.use(express.json());
 app.use('/api', healthRoutes);
 app.use('/api', demoRoutes);
 app.use('/api', createCatalogRouter(requireDemoStaff));
+app.use('/api', (_request, response) => response.status(404).json({ error: { code: 'NOT_FOUND', message: 'API route not found.' } }));
+const frontend = fileURLToPath(new URL('../../frontend/dist/', import.meta.url));
+if (existsSync(frontend)) {
+  app.use(express.static(frontend));
+  app.get('/{*path}', (_request, response) => response.sendFile(frontend + 'index.html'));
+}
 app.use((error, _request, response, _next) => {
   response.status(error.status ?? 500).json({
     error: { code: error.code ?? 'SERVER_ERROR', message: error.status ? error.message : 'The server could not complete this request.' },

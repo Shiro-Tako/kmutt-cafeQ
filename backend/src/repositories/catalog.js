@@ -59,5 +59,6 @@ const mockCatalog = {
   },
 };
 
-export const catalog = process.env.CATALOG_SOURCE === 'mysql' ? mysqlCatalog
+export const catalog = process.env.DATA_STORE === 'mysql' ? demoCatalog
+  : process.env.CATALOG_SOURCE === 'mysql' ? mysqlCatalog
   : process.env.CATALOG_SOURCE === 'mock' ? mockCatalog : demoCatalog;

@@ -3,6 +3,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
 import { listCafes, listMenuItems } from '../repositories/catalog.js';
+import { transactMysql } from './mysqlStore.js';
 
 const file = process.env.DEMO_DATA_FILE || fileURLToPath(new URL('../../data/demo.json', import.meta.url));
 let queue = Promise.resolve();
@@ -22,21 +23,27 @@ async function read() {
     return JSON.parse(await readFile(file, 'utf8'));
   } catch (error) {
     if (error.code !== 'ENOENT') throw error;
+    return createInitialState();
+  }
+}
+
+export async function createInitialState() {
+    const password = process.env.DEMO_SEED_PASSWORD || 'CafeQ123!';
     return {
       cafes: await listCafes(),
       menu: await listMenuItems({}),
       users: [
-        { userId: 201, name: 'Somchai', email: 'customer@example.test', passwordHash: hashPassword('CafeQ123!'), staffCafeIds: [] },
-        { userId: 202, name: 'Cafe Rung Staff', email: 'staff-rung@example.test', passwordHash: hashPassword('CafeQ123!'), staffCafeIds: [1] },
-        { userId: 203, name: 'Food Court Staff', email: 'staff-foodcourt@example.test', passwordHash: hashPassword('CafeQ123!'), staffCafeIds: [2] },
+        { userId: 201, name: 'Somchai', email: 'customer@example.test', passwordHash: hashPassword(password), staffCafeIds: [] },
+        { userId: 202, name: 'Cafe Rung Staff', email: 'staff-rung@example.test', passwordHash: hashPassword(password), staffCafeIds: [1] },
+        { userId: 203, name: 'Food Court Staff', email: 'staff-foodcourt@example.test', passwordHash: hashPassword(password), staffCafeIds: [2] },
       ],
       sessions: [], favorites: [], orders: [], payments: [],
     };
-  }
 }
 
 // Serialize requests so checkout and menu updates see a consistent snapshot.
 export function transact(action) {
+  if (process.env.DATA_STORE === 'mysql') return transactMysql(action, createInitialState);
   const result = queue.then(async () => {
     const state = await read();
     const value = await action(state);

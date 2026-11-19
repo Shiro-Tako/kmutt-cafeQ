@@ -95,7 +95,7 @@ function startSession(state, user) {
 }
 
 function setCookie(response, token) {
-  response.cookie('cafeq_session', token, { httpOnly: true, sameSite: 'strict', path: '/api', maxAge: 86400000 });
+  response.cookie('cafeq_session', token, { httpOnly: true, sameSite: 'strict', path: '/api', maxAge: 86400000, secure: process.env.PUBLIC_HTTPS === 'true' });
 }
 
 router.post('/auth/login', async (request, response) => {
