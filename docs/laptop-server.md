@@ -14,6 +14,18 @@ powershell -ExecutionPolicy Bypass -File scripts/start-laptop.ps1
 
 ## เปิดออนไลน์
 
+### ใช้ชื่อเครื่อง kmutt-cafeq ผ่าน Tailscale
+
+ติดตั้ง Tailscale และล็อกอินด้วยบัญชีของคุณ ตั้งชื่อเครื่องด้วย `tailscale set --hostname=kmutt-cafeq` จากนั้นเปิด PowerShell แบบ Administrator ในรากโปรเจกต์แล้วรัน
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/start-laptop.ps1 --tailscale
+```
+
+ครั้งแรกอาจต้องกดอนุญาต Funnel ผ่าน URL ที่ Tailscale แสดง เมื่อเปิดแล้วจะได้ที่อยู่ในรูปแบบ `https://kmutt-cafeq.<tailnet-name>.ts.net` ซึ่งใช้ชื่อเดิมได้ขณะบัญชีและชื่อเครื่องคงเดิม ผู้เข้าชมเปิดจากเบราว์เซอร์มือถือได้ ตัว launcher ใช้ Funnel แบบ foreground เพื่อให้บริการจบเมื่อหยุดโปรแกรม
+
+### ใช้ลิงก์ชั่วคราวผ่าน Cloudflare
+
 วาง cloudflared.exe ของ Cloudflare ใน `.local/cloudflared.exe` แล้วใช้
 
 ```powershell

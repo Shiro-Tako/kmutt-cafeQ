@@ -11,8 +11,10 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const local = join(root, '.local');
 const data = join(local, 'mysql');
 const executable = process.env.MYSQLD_PATH || 'C:/Program Files/MySQL/MySQL Server 26.7/bin/mysqld.exe';
-const online = process.argv.includes('--online');
+const useTailscale = process.argv.includes('--tailscale');
+const online = process.argv.includes('--online') || useTailscale;
 const tunnelPath = join(local, 'cloudflared.exe');
+const tailscalePath = process.env.TAILSCALE_PATH || 'C:/Program Files/Tailscale/tailscale.exe';
 let database;
 let app;
 let tunnel;
@@ -53,7 +55,14 @@ process.on('SIGTERM', stop);
 try {
   if (!existsSync(executable)) throw new Error('Set MYSQLD_PATH to the installed mysqld.exe.');
   if (!existsSync(join(root, 'frontend/dist/index.html'))) throw new Error('Build the frontend first.');
-  if (online && !existsSync(tunnelPath)) throw new Error('Download cloudflared into .local/cloudflared.exe first. See docs/laptop-server.md.');
+  if (useTailscale) {
+    if (!existsSync(tailscalePath)) throw new Error('Install Tailscale and log in before using --tailscale.');
+    const status = JSON.parse(execFileSync(tailscalePath, ['status', '--json'], { windowsHide: true, encoding: 'utf8' }));
+    if (status.BackendState !== 'Running') throw new Error('Log in to Tailscale first, then run this command again.');
+    console.log('Tailscale device: ' + status.Self?.DNSName);
+  } else if (online && !existsSync(tunnelPath)) {
+    throw new Error('Download cloudflared into .local/cloudflared.exe first. See docs/laptop-server.md.');
+  }
   await mkdir(local, { recursive: true });
   const stopFile = join(local, 'stop-server');
   await rm(stopFile, { force: true });
@@ -129,7 +138,11 @@ try {
   console.log('Account credentials and MySQL Workbench connection details are in .local/server.json.');
   console.log('Press Ctrl+C here to stop CafeQ and its MySQL process.');
   if (online) {
-    tunnel = spawn(tunnelPath, ['tunnel', '--url', 'http://127.0.0.1:' + config.appPort, '--no-autoupdate'], { stdio: 'inherit', windowsHide: true });
+    const command = useTailscale ? tailscalePath : tunnelPath;
+    const args = useTailscale
+      ? ['funnel', 'http://127.0.0.1:' + config.appPort]
+      : ['tunnel', '--url', 'http://127.0.0.1:' + config.appPort, '--no-autoupdate'];
+    tunnel = spawn(command, args, { stdio: 'inherit', windowsHide: true });
     tunnel.on('error', (error) => { console.error(error.message); stop(); });
     tunnel.on('exit', () => { if (!stopping) stop(); });
   }
