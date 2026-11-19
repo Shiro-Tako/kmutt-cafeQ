@@ -4,7 +4,7 @@
 
 | ตาราง | คอลัมน์ที่ทั้งทีมต้องใช้ตรงกัน |
 | --- | --- |
-| `users` | `id`, `name`, `email` (unique), `password_hash` |
+| `users` | `id`, `name`, `email` (unique), `password_hash` in `scrypt$<32 hex chars>$<128 hex chars>` format |
 | `cafes` | `id`, `name`, `pickup_point` |
 | `cafe_staff` | `user_id`, `cafe_id` ใช้คู่ค่านี้เป็นคีย์ |
 | `sessions` | `token_hash` (คีย์), `user_id`, `expires_at` ลบเซสชันเมื่อออกจากระบบ |

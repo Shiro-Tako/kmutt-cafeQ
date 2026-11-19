@@ -2,6 +2,7 @@ export async function requestJson(path, { method = 'GET', body, signal } = {}) {
   const response = await fetch(`/api${path}`, {
     method,
     signal,
+    credentials: 'include',
     ...(body === undefined ? {} : {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
