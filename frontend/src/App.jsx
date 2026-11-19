@@ -55,6 +55,8 @@ export default function App() {
   async function logout() {
     if (sessionEnabled) await signOut();
     setAccount(null);
+    setBasket({});
+    setFavoriteError('');
     setSelectedCafe(null);
     setStaffCafe('');
   }

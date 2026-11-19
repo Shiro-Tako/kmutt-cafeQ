@@ -8,6 +8,10 @@ export function useCatalog(demoMenu) {
   const [error, setError] = useState('');
   const [revision, setRevision] = useState(0);
   useEffect(() => {
+    const timer = setInterval(() => setRevision((value) => value + 1), 5000);
+    return () => clearInterval(timer);
+  }, []);
+  useEffect(() => {
     const controller = new AbortController();
     Promise.all([fetchCafes(controller.signal), fetchMenuItems({}, controller.signal)])
       .then(([cafes, rows]) => {

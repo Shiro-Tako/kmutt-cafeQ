@@ -9,7 +9,7 @@ export default function HomePage() {
   const featured = available.find((item) => item.id === 'sweet-heaven') ?? available[0];
   const recommended = available.filter((item) => item.id !== featured?.id).slice(0, 3);
   return (
-    <CafeLayout title={account ? `Good day, ${account.name}` : 'Good day, Somchai'}>
+    <CafeLayout title={account ? `Good day, ${account.name}` : 'Welcome to KMUTT CafeQ'}>
       {error && <p role="alert">{error} <button onClick={refresh}>Retry catalog</button></p>}
       {loading && <p role="status">Loading menu…</p>}
       {featured && <Link className="feature" to={`/drink/${featured.id}`}>

@@ -1,5 +1,7 @@
 # KMUTT Café Queue System
 
+This branch contains the complete demo. Start with [the demo guide and sample accounts](docs/demo-version.md).
+
 A university project for managing café queues. The frontend includes customer ordering and staff demos. Express currently provides a health endpoint.
 
 ## Team development
