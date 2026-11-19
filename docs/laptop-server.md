@@ -1,5 +1,7 @@
 # เปิด CafeQ จากแล็ปท็อป
 
+เริ่มจาก [README: ติดตั้งบน Windows](../README.md) สำหรับ clone branch `demo-version`, ติดตั้ง dependencies และตั้ง `MYSQLD_PATH` ให้ตรงกับเครื่องของคุณ โหมด launcher ไม่ต้องสร้าง `.env` หรือ import SQL ด้วยมือ
+
 โครงสร้างตามสไลด์อยู่ใน [presentation-schema.md](presentation-schema.md) ตาราง Customer, Staff, Menu, Order, OrderDetail และ Queue ซิงก์กับระบบเดิมใน transaction เดียว
 
 บน branch demo-version ใช้ MySQL Server ที่ติดตั้งในเครื่อง และแยกข้อมูลของแอปไว้ที่ `.local/mysql` พอร์ต 3307 หน้าเว็บและ API เปิดที่พอร์ต 3000 ข้อมูลจริงและรหัสผ่านอยู่ใน `.local/` ซึ่ง Git ignore ไว้
@@ -23,6 +25,8 @@ powershell -ExecutionPolicy Bypass -File scripts/start-laptop.ps1 --tailscale
 ```
 
 ครั้งแรกอาจต้องกดอนุญาต Funnel ผ่าน URL ที่ Tailscale แสดง เมื่อเปิดแล้วจะได้ที่อยู่ในรูปแบบ `https://kmutt-cafeq.<tailnet-name>.ts.net` ซึ่งใช้ชื่อเดิมได้ขณะบัญชีและชื่อเครื่องคงเดิม ผู้เข้าชมเปิดจากเบราว์เซอร์มือถือได้ ตัว launcher ใช้ Funnel แบบ foreground เพื่อให้บริการจบเมื่อหยุดโปรแกรม
+
+เครื่องเดโมปัจจุบันใช้ https://kmutt-cafeq.tail1917ea.ts.net เครื่องใหม่ใช้ URL ของตัวเองตามเทอร์มินัล ผู้เข้าชมไม่ต้องติดตั้ง Tailscale เครื่องเซิร์ฟเวอร์ต้องไม่ sleep ระหว่างให้บริการ
 
 ### ใช้ลิงก์ชั่วคราวผ่าน Cloudflare
 

@@ -18,7 +18,7 @@ Open http://localhost:5173. In `backend/.env`, use `CATALOG_SOURCE=demo` if you 
 
 ## Demo accounts
 
-All three seeded accounts use password `CafeQ123!`.
+For a fresh JSON data file, all three seeded accounts use password `CafeQ123!` unless `DEMO_SEED_PASSWORD` is set. The laptop MySQL launcher uses its own generated `accountPassword` from `.local/server.json` instead. Existing accounts keep the password assigned when they were created.
 
 | Email | Role |
 | --- | --- |
@@ -39,6 +39,6 @@ Customer registration creates a new customer account. Staff use the seeded accou
 
 Data is saved to ignored `backend/data/demo.json`, including password hashes and session token hashes. An optional `DEMO_DATA_FILE` environment variable selects another file for tests. Keep test data separate from your demo data. Initial seed accounts are created when the file does not exist.
 
-Payments are simulated and no money is collected. The demo uses one local server and JSON persistence. The team's MySQL implementation can be integrated later on its own branch.
+Payments are simulated and no money is collected. These development instructions use one local server and JSON persistence. MySQL persistence is already available through the laptop launcher described in [laptop-server.md](laptop-server.md).
 
 Run the demo regression test from the root with `node --test backend/test/demo.test.js`. It uses its own temporary data file and tests store permissions, duplicate confirmation, price changes, order status transitions, logout and persistence after restarting Express.
