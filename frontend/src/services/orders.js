@@ -15,6 +15,7 @@ export function toDisplayOrder(order, cafes) {
   }));
   return {
     id: order.orderId,
+    queueNumber: order.queueNumber,
     cafe: cafes.find(({ cafeId }) => cafeId === order.cafeId)?.name ?? `Café #${order.cafeId}`,
     customer: order.customerName ?? 'Customer',
     status: order.status,

@@ -101,8 +101,10 @@ try {
   }
   if (!connection) throw new Error('Could not connect to local MySQL. See .local/mysql.log.');
   await rm(initFile, { force: true });
-  const schema = await readFile(join(root, 'database/schema.sql'), 'utf8');
-  for (const statement of schema.split(';').map((entry) => entry.trim()).filter(Boolean)) await connection.query(statement);
+  for (const name of ['schema.sql', 'presentation.sql']) {
+    const schema = await readFile(join(root, 'database', name), 'utf8');
+    for (const statement of schema.split(';').map((entry) => entry.trim()).filter(Boolean)) await connection.query(statement);
+  }
   await connection.end();
   connection = null;
   const env = {

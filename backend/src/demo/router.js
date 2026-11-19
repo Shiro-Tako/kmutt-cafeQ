@@ -71,15 +71,16 @@ const router = Router();
 
 router.post('/auth/register', async (request, response) => {
   const result = await transact((state) => {
-    const { name, email, password } = request.body ?? {};
+    const { name, email, password, phone } = request.body ?? {};
     if (typeof name !== 'string' || !name.trim() || name.length > 80 ||
         typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254 ||
-        typeof password !== 'string' || password.length < 8 || password.length > 128) {
+        typeof password !== 'string' || password.length < 8 || password.length > 128 ||
+        (phone !== undefined && (typeof phone !== 'string' || !/^[+\d ()-]{0,30}$/.test(phone)))) {
       fail(400, 'INVALID_ACCOUNT', 'Enter a name, valid email and password of 8 to 128 characters.');
     }
     const normalized = email.trim().toLowerCase();
     if (state.users.some((user) => user.email === normalized)) fail(409, 'EMAIL_EXISTS', 'This email is already registered.');
-    const user = { userId: Math.max(200, ...state.users.map((entry) => entry.userId)) + 1, name: name.trim(), email: normalized, passwordHash: hashPassword(password), staffCafeIds: [] };
+    const user = { userId: Math.max(200, ...state.users.map((entry) => entry.userId)) + 1, name: name.trim(), email: normalized, passwordHash: hashPassword(password), phone: phone?.trim() || null, role: 'customer', staffCafeIds: [] };
     state.users.push(user);
     return startSession(state, user);
   });
@@ -166,6 +167,8 @@ router.post('/checkout/confirm', async (request, response) => {
     const calculated = quote(state, body);
     if (calculated.total !== body.expectedTotal) fail(409, 'PRICE_CHANGED', 'Prices have changed. Review the updated total.');
     const order = { ...calculated, orderId: Math.max(300, ...state.orders.map((entry) => entry.orderId)) + 1, userId: user.userId, customerName: user.name, status: 'Waiting', createdAt: new Date().toISOString() };
+    order.queueDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+    order.queueNumber = Math.max(0, ...state.orders.filter((entry) => entry.cafeId === order.cafeId && entry.queueDate === order.queueDate).map((entry) => entry.queueNumber ?? 0)) + 1;
     state.orders.push(order);
     state.payments.push({ orderId: order.orderId, userId: user.userId, confirmationId: body.confirmationId, fingerprint, amount: order.total, method: 'demo', status: 'confirmed' });
     return { order, repeated: false };

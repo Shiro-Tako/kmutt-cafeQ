@@ -10,6 +10,12 @@ const tables = [
   ['orders', ['id', 'user_id', 'cafe_id', 'pickup_point', 'status', 'subtotal', 'packaging_fee', 'total', 'created_at', 'customer_name']],
   ['order_items', ['order_id', 'menu_item_id', 'name', 'unit_price', 'quantity']],
   ['payments', ['order_id', 'user_id', 'confirmation_id', 'fingerprint', 'amount', 'method', 'status']],
+  ['Customer', ['customer_id', 'name', 'email', 'password_hash', 'phone']],
+  ['Staff', ['staff_id', 'name', 'email', 'password_hash', 'role']],
+  ['Menu', ['menu_id', 'cafe_id', 'name', 'category', 'description', 'price', 'image_url', 'available']],
+  ['Order', ['order_id', 'customer_id', 'cafe_id', 'pickup_point', 'status', 'subtotal', 'packaging_fee', 'total_price', 'order_date', 'customer_name']],
+  ['OrderDetail', ['order_id', 'menu_id', 'name', 'price', 'quantity']],
+  ['Queue', ['queue_id', 'order_id', 'cafe_id', 'queue_number', 'queue_date', 'status']],
 ];
 
 function rowsFrom(state) {
@@ -23,25 +29,38 @@ function rowsFrom(state) {
     state.orders.map((r) => [r.orderId, r.userId, r.cafeId, r.pickupPoint, r.status, r.subtotal, r.packagingFee, r.total, r.createdAt, r.customerName]),
     state.orders.flatMap((order) => order.items.map((r) => [order.orderId, r.menuItemId, r.name, r.unitPrice, r.quantity])),
     state.payments.map((r) => [r.orderId, r.userId, r.confirmationId, r.fingerprint, r.amount, r.method, r.status]),
+    state.users.map((r) => [r.userId, r.name, r.email, r.passwordHash, r.phone ?? null]),
+    state.users.filter((r) => r.staffCafeIds.length).map((r) => [r.userId, r.name, r.email, r.passwordHash, r.role ?? 'staff']),
+    state.menu.map((r) => [r.menuItemId, r.cafeId, r.name, r.category, r.description, r.price, r.imageUrl ?? null, Number(r.isActive)]),
+    state.orders.map((r) => [r.orderId, r.userId, r.cafeId, r.pickupPoint, r.status, r.subtotal, r.packagingFee, r.total, r.createdAt, r.customerName]),
+    state.orders.flatMap((order) => order.items.map((r) => [order.orderId, r.menuItemId, r.name, r.unitPrice, r.quantity])),
+    state.orders.map((r) => [r.orderId, r.orderId, r.cafeId, r.queueNumber, r.queueDate, r.status]),
   ];
 }
 
 async function load(connection) {
   const data = [];
   for (const [name] of tables) {
-    const [rows] = await connection.query('SELECT * FROM ' + name);
+    const [rows] = await connection.query('SELECT * FROM `' + name + '`');
     data.push(rows);
   }
-  const [cafes, users, staff, menu, sessions, favorites, orders, lines, payments] = data;
+  const [cafes, users, staff, menu, sessions, favorites, orders, lines, payments, customers, staffAccounts, , , , queues] = data;
   return {
     cafes: cafes.map((r) => ({ cafeId: r.id, name: r.name, pickupPoint: r.pickup_point })),
-    users: users.map((r) => ({ userId: r.id, name: r.name, email: r.email, passwordHash: r.password_hash, staffCafeIds: staff.filter((s) => s.user_id === r.id).map((s) => s.cafe_id) })),
+    users: users.map((r) => ({
+      userId: r.id, name: r.name, email: r.email, passwordHash: r.password_hash,
+      phone: customers.find((entry) => entry.customer_id === r.id)?.phone ?? null,
+      role: staffAccounts.find((entry) => entry.staff_id === r.id)?.role ?? 'customer',
+      staffCafeIds: staff.filter((s) => s.user_id === r.id).map((s) => s.cafe_id),
+    })),
     menu: menu.map((r) => ({ menuItemId: r.id, cafeId: r.cafe_id, name: r.name, category: r.category, description: r.description, price: r.price, imageUrl: r.image_url, isActive: Boolean(r.is_active) })),
     sessions: sessions.map((r) => ({ hash: r.token_hash, userId: r.user_id, expires: Number(r.expires_at) })),
     favorites: favorites.map((r) => ({ userId: r.user_id, menuItemId: r.menu_item_id })),
     orders: orders.map((r) => ({
       orderId: r.id, userId: r.user_id, cafeId: r.cafe_id, pickupPoint: r.pickup_point, status: r.status,
       subtotal: r.subtotal, packagingFee: r.packaging_fee, total: r.total, createdAt: r.created_at, customerName: r.customer_name,
+      queueNumber: queues.find((entry) => entry.order_id === r.id)?.queue_number,
+      queueDate: queues.find((entry) => entry.order_id === r.id)?.queue_date,
       items: lines.filter((line) => line.order_id === r.id).map((line) => ({ menuItemId: line.menu_item_id, name: line.name, unitPrice: line.unit_price, quantity: line.quantity })),
     })),
     payments: payments.map((r) => ({ orderId: r.order_id, userId: r.user_id, confirmationId: r.confirmation_id, fingerprint: r.fingerprint, amount: r.amount, method: r.method, status: r.status })),
@@ -75,7 +94,7 @@ export async function transactMysql(action, seed) {
       for (const row of after[index]) {
         if (oldRows.has(JSON.stringify(row))) continue;
         const assignments = columns.map((column) => column + '=VALUES(' + column + ')').join(',');
-        await connection.execute('INSERT INTO ' + name + ' (' + columns.join(',') + ') VALUES (' + columns.map(() => '?').join(',') + ') ON DUPLICATE KEY UPDATE ' + assignments, row);
+        await connection.execute('INSERT INTO `' + name + '` (' + columns.join(',') + ') VALUES (' + columns.map(() => '?').join(',') + ') ON DUPLICATE KEY UPDATE ' + assignments, row);
       }
     }
     await connection.query('UPDATE app_lock SET initialized = 1 WHERE id = 1');

@@ -1,5 +1,7 @@
 # ข้อตกลง MySQL · KMUTT CafeQ
 
+บน branch demo-version มีตารางที่ปรับตามสไลด์แล้ว ดู [โครงสร้างตาม presentation](presentation-schema.md) และรัน presentation.sql หลัง schema.sql ตารางด้านล่างเป็นโครงสร้างเดิมที่ยังเก็บไว้เพื่อรองรับ API
+
 ร่างสำหรับ Backend และ Database ใช้คุยกันก่อนเขียน SQL ดูรูปแบบ JSON และ routes ใน [API contract](api-contract.md) ตอนนี้ `database/schema.sql` และ `database/seed.sql` ยังเป็นไฟล์โครง
 
 | ตาราง | คอลัมน์ที่ทั้งทีมต้องใช้ตรงกัน |

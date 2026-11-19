@@ -65,6 +65,7 @@ export function BasketPage({ basket, orders, account, changeQuantity, clearCafe 
                 <div>
                   <div className="spread"><small>{order.cafe}</small><small>{order.date}</small></div>
                   <p>{first?.quantity}x　<strong>{first?.name}</strong></p>
+                  {order.queueNumber && <p>Queue #{String(order.queueNumber).padStart(3, '0')}</p>}
                   <div className="spread history-footer">
                     <button aria-expanded={expanded === order.id} onClick={() => setExpanded(expanded === order.id ? null : order.id)}>Details</button>
                     <strong className="order-status">{order.status}</strong>
@@ -210,6 +211,7 @@ export function StaffPage({ cafe, cafeId, orders, advanceOrder }) {
           {currentOrders.map((order) => (
             <article key={order.id} className="outlined staff-card">
               <div className="spread"><h2>Order #{String(order.id).padStart(3, '0')}</h2><strong>{order.customer}</strong></div>
+              {order.queueNumber && <p>Queue #{String(order.queueNumber).padStart(3, '0')}</p>}
               <small>Placed: {order.time}</small>
               <ul>{orderLines(order, getItem).map(({ id, name, quantity }) => <li className="spread" key={id}>{name}<strong>×{quantity}</strong></li>)}</ul>
               <div className="spread"><span>Total Amount</span><strong>{baht(orderTotal(order))}</strong></div>

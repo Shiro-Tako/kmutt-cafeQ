@@ -1,5 +1,7 @@
 # เปิด CafeQ จากแล็ปท็อป
 
+โครงสร้างตามสไลด์อยู่ใน [presentation-schema.md](presentation-schema.md) ตาราง Customer, Staff, Menu, Order, OrderDetail และ Queue ซิงก์กับระบบเดิมใน transaction เดียว
+
 บน branch demo-version ใช้ MySQL Server ที่ติดตั้งในเครื่อง และแยกข้อมูลของแอปไว้ที่ `.local/mysql` พอร์ต 3307 หน้าเว็บและ API เปิดที่พอร์ต 3000 ข้อมูลจริงและรหัสผ่านอยู่ใน `.local/` ซึ่ง Git ignore ไว้
 
 จากรากโปรเจกต์ เปิด PowerShell แล้วรัน

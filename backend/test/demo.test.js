@@ -57,6 +57,8 @@ test('demo persists orders and rejects duplicate, stale and cross-store operatio
     const results = await Promise.all([request('/checkout/confirm', 'POST', body, customer), request('/checkout/confirm', 'POST', body, customer)]);
     assert.deepEqual(results.map((result) => result.status).sort(), [200, 201]);
     const order = await results[0].json();
+    assert.equal(order.queueNumber, 1);
+    assert.match(order.queueDate, /^\d{4}-\d{2}-\d{2}$/);
     assert.equal((await request('/checkout/confirm', 'POST', { ...body, expectedTotal: 1 }, customer)).status, 409);
     assert.equal((await request('/checkout/quote', 'POST', { cafeId: 1, items: [{ menuItemId: 112, quantity: 1 }] }, customer)).status, 409);
     assert.equal((await request('/checkout/quote', 'POST', { cafeId: 1, items: [{ menuItemId: 101, quantity: 0 }] }, customer)).status, 400);

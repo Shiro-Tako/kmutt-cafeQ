@@ -37,7 +37,7 @@ export function LoginPage({ staff = false, onStaffLogin, onAccount }) {
       setPending(true);
       try {
         const credentials = { email: fields.get('username').trim(), password: fields.get('password') };
-        const account = signUp ? await register({ ...credentials, name: fields.get('name').trim() }) : await signIn(credentials);
+        const account = signUp ? await register({ ...credentials, name: fields.get('name').trim(), phone: fields.get('phone').trim() }) : await signIn(credentials);
         onAccount(account);
         if (staff && !account.staffCafeIds?.length) {
           setError('This account has no assigned café.');
@@ -84,6 +84,7 @@ export function LoginPage({ staff = false, onStaffLogin, onAccount }) {
             </div>
           )}
           {sessionEnabled && signUp && <input name="name" aria-label="Name" placeholder="Name" autoComplete="name" required />}
+          {sessionEnabled && signUp && <input name="phone" aria-label="Phone (optional)" placeholder="Phone (optional)" autoComplete="tel" type="tel" maxLength={30} />}
           <input name="username" aria-label={sessionEnabled ? 'Email' : 'Username or email'} placeholder={sessionEnabled ? 'Email' : 'Username or email'} type={sessionEnabled ? 'email' : 'text'} autoComplete="username" required={staff || sessionEnabled} />
           <div className="password-field">
             <input name="password" aria-label="Password" placeholder="Password" autoComplete={signUp ? 'new-password' : 'current-password'} type={visible ? 'text' : 'password'} required={staff || sessionEnabled} />
