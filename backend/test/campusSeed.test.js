@@ -3,13 +3,13 @@ import test from 'node:test';
 import { createCampusState } from '../src/demo/campusSeed.js';
 import { checkPassword, hashPassword } from '../src/demo/store.js';
 
-test('campus catalog has five stores, ten valid menu items each and working sample accounts', () => {
+test('campus catalog has five stores, twelve valid menu items each and working sample accounts', () => {
   const state = createCampusState('ExamplePassword123');
   assert.equal(state.cafes.length, 5);
-  assert.equal(state.menu.length, 50);
-  assert.equal(new Set(state.menu.map((item) => item.menuItemId)).size, 50);
+  assert.equal(state.menu.length, 60);
+  assert.equal(new Set(state.menu.map((item) => item.menuItemId)).size, 60);
   for (const cafe of state.cafes) {
-    assert.equal(state.menu.filter((item) => item.cafeId === cafe.cafeId).length, 10);
+    assert.equal(state.menu.filter((item) => item.cafeId === cafe.cafeId).length, 12);
     const owner = state.users.find((user) => user.userId === cafe.ownerUserId);
     assert.ok(owner.staffCafeIds.includes(cafe.cafeId));
     assert.ok(checkPassword('ExamplePassword123', owner.passwordHash));

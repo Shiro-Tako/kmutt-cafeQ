@@ -15,7 +15,7 @@
           "name": "Iced Black Coffee",
           "category": "Coffee",
           "price": 6000,
-          "imageUrl": "/figma/c78c7.png",
+          "imageUrl": "/menu/1101.jpg",
           "description": "Black coffee over ice. Demo item; price and availability are illustrative.",
           "cafeId": 1,
           "isActive": true
@@ -25,7 +25,7 @@
           "name": "Iced Espresso",
           "category": "Coffee",
           "price": 6500,
-          "imageUrl": "/figma/e532a.png",
+          "imageUrl": "/menu/1102.jpg",
           "description": "Thai-style espresso with milk over ice. Demo item; price and availability are illustrative.",
           "cafeId": 1,
           "isActive": true
@@ -35,7 +35,7 @@
           "name": "Iced Café Latte",
           "category": "Coffee",
           "price": 7000,
-          "imageUrl": "/figma/6f32b.png",
+          "imageUrl": "/menu/1103.jpg",
           "description": "Espresso and milk over ice. Demo item; price and availability are illustrative.",
           "cafeId": 1,
           "isActive": true
@@ -45,7 +45,7 @@
           "name": "Hot Cappuccino",
           "category": "Coffee",
           "price": 6000,
-          "imageUrl": "/figma/dda84.png",
+          "imageUrl": "/menu/1104.jpg",
           "description": "Espresso, warm milk and milk foam. Demo item; price and availability are illustrative.",
           "cafeId": 1,
           "isActive": true
@@ -55,7 +55,7 @@
           "name": "Iced Mocha",
           "category": "Coffee",
           "price": 7500,
-          "imageUrl": "/figma/2532d.png",
+          "imageUrl": "/menu/1105.jpg",
           "description": "Espresso with chocolate and milk. Demo item; price and availability are illustrative.",
           "cafeId": 1,
           "isActive": true
@@ -65,7 +65,7 @@
           "name": "Honey Black Coffee",
           "category": "Coffee",
           "price": 7000,
-          "imageUrl": "/figma/c78c7.png",
+          "imageUrl": "/menu/1106.jpg",
           "description": "Iced black coffee sweetened with honey. Demo item; price and availability are illustrative.",
           "cafeId": 1,
           "isActive": true
@@ -75,7 +75,7 @@
           "name": "Green Tea with Milk",
           "category": "Tea & More",
           "price": 6000,
-          "imageUrl": "/figma/6f32b.png",
+          "imageUrl": "/menu/1107.jpg",
           "description": "Green tea with milk over ice. Demo item; price and availability are illustrative.",
           "cafeId": 1,
           "isActive": true
@@ -85,7 +85,7 @@
           "name": "Tea with Milk",
           "category": "Tea & More",
           "price": 5500,
-          "imageUrl": "/figma/e532a.png",
+          "imageUrl": "/menu/1108.jpg",
           "description": "Milk tea served over ice. Demo item; price and availability are illustrative.",
           "cafeId": 1,
           "isActive": true
@@ -95,7 +95,7 @@
           "name": "Iced Chocolate",
           "category": "Tea & More",
           "price": 6000,
-          "imageUrl": "/figma/d790d.png",
+          "imageUrl": "/menu/1109.jpg",
           "description": "Chocolate and milk served cold. Demo item; price and availability are illustrative.",
           "cafeId": 1,
           "isActive": true
@@ -105,10 +105,30 @@
           "name": "Lemon Tea",
           "category": "Tea & More",
           "price": 5500,
-          "imageUrl": "/figma/dd102.png",
+          "imageUrl": "/menu/1110.jpg",
           "description": "Black tea with a citrus finish. Demo item; price and availability are illustrative.",
           "cafeId": 1,
           "isActive": true
+        },
+        {
+          "menuItemId": 1111,
+          "name": "Coconut Cake",
+          "category": "Snacks",
+          "price": 5500,
+          "description": "Coconut Cake for campus pickup. Demo item; price and availability are illustrative.",
+          "cafeId": 1,
+          "isActive": true,
+          "imageUrl": "/menu/1111.jpg"
+        },
+        {
+          "menuItemId": 1112,
+          "name": "Banana Muffin",
+          "category": "Snacks",
+          "price": 4000,
+          "description": "Banana Muffin for campus pickup. Demo item; price and availability are illustrative.",
+          "cafeId": 1,
+          "isActive": true,
+          "imageUrl": "/menu/1112.jpg"
         }
       ]
     },
@@ -123,7 +143,7 @@
           "name": "Iced Americano",
           "category": "Coffee",
           "price": 6000,
-          "imageUrl": "/figma/c78c7.png",
+          "imageUrl": "/menu/1201.jpg",
           "description": "Espresso diluted with water over ice. Demo item; price and availability are illustrative.",
           "cafeId": 2,
           "isActive": true
@@ -133,7 +153,7 @@
           "name": "Iced Espresso",
           "category": "Coffee",
           "price": 6500,
-          "imageUrl": "/figma/e532a.png",
+          "imageUrl": "/menu/1202.jpg",
           "description": "Espresso and creamy milk served cold. Demo item; price and availability are illustrative.",
           "cafeId": 2,
           "isActive": true
@@ -143,7 +163,7 @@
           "name": "Iced Café Latte",
           "category": "Coffee",
           "price": 7000,
-          "imageUrl": "/figma/6f32b.png",
+          "imageUrl": "/menu/1203.jpg",
           "description": "A smooth espresso and milk drink. Demo item; price and availability are illustrative.",
           "cafeId": 2,
           "isActive": true
@@ -153,7 +173,7 @@
           "name": "Hot Cappuccino",
           "category": "Coffee",
           "price": 5500,
-          "imageUrl": "/figma/dda84.png",
+          "imageUrl": "/menu/1204.jpg",
           "description": "Warm espresso with steamed milk and foam. Demo item; price and availability are illustrative.",
           "cafeId": 2,
           "isActive": true
@@ -163,7 +183,7 @@
           "name": "Iced Mocha",
           "category": "Coffee",
           "price": 7500,
-          "imageUrl": "/figma/2532d.png",
+          "imageUrl": "/menu/1205.jpg",
           "description": "Coffee and chocolate over ice. Demo item; price and availability are illustrative.",
           "cafeId": 2,
           "isActive": true
@@ -173,7 +193,7 @@
           "name": "Hot Espresso",
           "category": "Coffee",
           "price": 4000,
-          "imageUrl": "/figma/dda84.png",
+          "imageUrl": "/menu/1206.jpg",
           "description": "A small, concentrated hot coffee. Demo item; price and availability are illustrative.",
           "cafeId": 2,
           "isActive": true
@@ -183,7 +203,7 @@
           "name": "Iced Thai Tea Latte",
           "category": "Tea & More",
           "price": 6000,
-          "imageUrl": "/figma/e532a.png",
+          "imageUrl": "/menu/1207.jpg",
           "description": "Thai tea and milk over ice. Demo item; price and availability are illustrative.",
           "cafeId": 2,
           "isActive": true
@@ -193,7 +213,7 @@
           "name": "Iced Green Tea Latte",
           "category": "Tea & More",
           "price": 6000,
-          "imageUrl": "/figma/6f32b.png",
+          "imageUrl": "/menu/1208.jpg",
           "description": "Green tea blended with milk. Demo item; price and availability are illustrative.",
           "cafeId": 2,
           "isActive": true
@@ -203,7 +223,7 @@
           "name": "Iced Cocoa",
           "category": "Tea & More",
           "price": 6000,
-          "imageUrl": "/figma/d790d.png",
+          "imageUrl": "/menu/1209.jpg",
           "description": "Cocoa with milk over ice. Demo item; price and availability are illustrative.",
           "cafeId": 2,
           "isActive": true
@@ -213,10 +233,30 @@
           "name": "Iced Fresh Milk",
           "category": "Tea & More",
           "price": 5500,
-          "imageUrl": "/figma/39bbc.png",
+          "imageUrl": "/menu/1210.jpg",
           "description": "Chilled milk served over ice. Demo item; price and availability are illustrative.",
           "cafeId": 2,
           "isActive": true
+        },
+        {
+          "menuItemId": 1211,
+          "name": "Almond Croissant",
+          "category": "Snacks",
+          "price": 6500,
+          "description": "Almond Croissant for campus pickup. Demo item; price and availability are illustrative.",
+          "cafeId": 2,
+          "isActive": true,
+          "imageUrl": "/menu/1211.jpg"
+        },
+        {
+          "menuItemId": 1212,
+          "name": "Chocolate Brownie",
+          "category": "Snacks",
+          "price": 4500,
+          "description": "Chocolate Brownie for campus pickup. Demo item; price and availability are illustrative.",
+          "cafeId": 2,
+          "isActive": true,
+          "imageUrl": "/menu/1212.jpg"
         }
       ]
     },
@@ -231,7 +271,7 @@
           "name": "Original Milk Tea",
           "category": "Tea & More",
           "price": 5500,
-          "imageUrl": "/figma/e532a.png",
+          "imageUrl": "/menu/1301.jpg",
           "description": "Classic milk tea over ice. Demo item; price and availability are illustrative.",
           "cafeId": 3,
           "isActive": true
@@ -241,7 +281,7 @@
           "name": "Pearl Milk Tea",
           "category": "Tea & More",
           "price": 6500,
-          "imageUrl": "/figma/e532a.png",
+          "imageUrl": "/menu/1302.jpg",
           "description": "Milk tea with chewy tapioca pearls. Demo item; price and availability are illustrative.",
           "cafeId": 3,
           "isActive": true
@@ -251,7 +291,7 @@
           "name": "Brown Sugar Milk",
           "category": "Tea & More",
           "price": 7000,
-          "imageUrl": "/figma/6f32b.png",
+          "imageUrl": "/menu/1303.jpg",
           "description": "Milk with brown sugar syrup. Demo item; price and availability are illustrative.",
           "cafeId": 3,
           "isActive": true
@@ -261,7 +301,7 @@
           "name": "Thai Milk Tea",
           "category": "Tea & More",
           "price": 6000,
-          "imageUrl": "/figma/e532a.png",
+          "imageUrl": "/menu/1304.jpg",
           "description": "Thai-style milk tea served cold. Demo item; price and availability are illustrative.",
           "cafeId": 3,
           "isActive": true
@@ -271,7 +311,7 @@
           "name": "Matcha Latte",
           "category": "Tea & More",
           "price": 7500,
-          "imageUrl": "/figma/6f32b.png",
+          "imageUrl": "/menu/1305.jpg",
           "description": "Matcha tea with creamy milk. Demo item; price and availability are illustrative.",
           "cafeId": 3,
           "isActive": true
@@ -281,7 +321,7 @@
           "name": "Cocoa Milk",
           "category": "Tea & More",
           "price": 6500,
-          "imageUrl": "/figma/d790d.png",
+          "imageUrl": "/menu/1306.jpg",
           "description": "Cocoa and fresh milk over ice. Demo item; price and availability are illustrative.",
           "cafeId": 3,
           "isActive": true
@@ -291,7 +331,7 @@
           "name": "Jasmine Green Tea",
           "category": "Tea & More",
           "price": 4500,
-          "imageUrl": "/figma/dd102.png",
+          "imageUrl": "/menu/1307.jpg",
           "description": "A light jasmine-scented tea. Demo item; price and availability are illustrative.",
           "cafeId": 3,
           "isActive": true
@@ -301,7 +341,7 @@
           "name": "Lemon Black Tea",
           "category": "Tea & More",
           "price": 5500,
-          "imageUrl": "/figma/dd102.png",
+          "imageUrl": "/menu/1308.jpg",
           "description": "Black tea with lemon. Demo item; price and availability are illustrative.",
           "cafeId": 3,
           "isActive": true
@@ -311,7 +351,7 @@
           "name": "Lychee Tea",
           "category": "Tea & More",
           "price": 6000,
-          "imageUrl": "/figma/c468c.png",
+          "imageUrl": "/menu/1309.jpg",
           "description": "Refreshing tea with lychee flavor. Demo item; price and availability are illustrative.",
           "cafeId": 3,
           "isActive": true
@@ -321,10 +361,30 @@
           "name": "Peach Tea",
           "category": "Tea & More",
           "price": 6000,
-          "imageUrl": "/figma/dd102.png",
+          "imageUrl": "/menu/1310.jpg",
           "description": "Black tea with a peach finish. Demo item; price and availability are illustrative.",
           "cafeId": 3,
           "isActive": true
+        },
+        {
+          "menuItemId": 1311,
+          "name": "Matcha Cookie",
+          "category": "Snacks",
+          "price": 3500,
+          "description": "Matcha Cookie for campus pickup. Demo item; price and availability are illustrative.",
+          "cafeId": 3,
+          "isActive": true,
+          "imageUrl": "/menu/1311.jpg"
+        },
+        {
+          "menuItemId": 1312,
+          "name": "Sesame Mochi",
+          "category": "Snacks",
+          "price": 4000,
+          "description": "Sesame Mochi for campus pickup. Demo item; price and availability are illustrative.",
+          "cafeId": 3,
+          "isActive": true,
+          "imageUrl": "/menu/1312.jpg"
         }
       ]
     },
@@ -339,7 +399,7 @@
           "name": "Fresh Milk Tea",
           "category": "Tea & More",
           "price": 5000,
-          "imageUrl": "/figma/e532a.png",
+          "imageUrl": "/menu/1401.jpg",
           "description": "Smooth milk tea served over ice. Demo item; price and availability are illustrative.",
           "cafeId": 4,
           "isActive": true
@@ -349,7 +409,7 @@
           "name": "Brown Sugar Pearl Milk",
           "category": "Tea & More",
           "price": 6500,
-          "imageUrl": "/figma/6f32b.png",
+          "imageUrl": "/menu/1402.jpg",
           "description": "Milk with brown sugar and pearls. Demo item; price and availability are illustrative.",
           "cafeId": 4,
           "isActive": true
@@ -359,7 +419,7 @@
           "name": "Thai Tea",
           "category": "Tea & More",
           "price": 5500,
-          "imageUrl": "/figma/e532a.png",
+          "imageUrl": "/menu/1403.jpg",
           "description": "A chilled Thai tea with milk. Demo item; price and availability are illustrative.",
           "cafeId": 4,
           "isActive": true
@@ -369,7 +429,7 @@
           "name": "Matcha Milk",
           "category": "Tea & More",
           "price": 6500,
-          "imageUrl": "/figma/6f32b.png",
+          "imageUrl": "/menu/1404.jpg",
           "description": "Matcha and milk served cold. Demo item; price and availability are illustrative.",
           "cafeId": 4,
           "isActive": true
@@ -379,7 +439,7 @@
           "name": "Cocoa Milk",
           "category": "Tea & More",
           "price": 6000,
-          "imageUrl": "/figma/d790d.png",
+          "imageUrl": "/menu/1405.jpg",
           "description": "A creamy cocoa milk drink. Demo item; price and availability are illustrative.",
           "cafeId": 4,
           "isActive": true
@@ -389,7 +449,7 @@
           "name": "Taro Milk",
           "category": "Tea & More",
           "price": 6000,
-          "imageUrl": "/figma/39bbc.png",
+          "imageUrl": "/menu/1406.jpg",
           "description": "Milk with a mellow taro flavor. Demo item; price and availability are illustrative.",
           "cafeId": 4,
           "isActive": true
@@ -399,7 +459,7 @@
           "name": "Jasmine Tea",
           "category": "Tea & More",
           "price": 4000,
-          "imageUrl": "/figma/dd102.png",
+          "imageUrl": "/menu/1407.jpg",
           "description": "A light jasmine tea over ice. Demo item; price and availability are illustrative.",
           "cafeId": 4,
           "isActive": true
@@ -409,7 +469,7 @@
           "name": "Lemon Tea",
           "category": "Tea & More",
           "price": 5000,
-          "imageUrl": "/figma/dd102.png",
+          "imageUrl": "/menu/1408.jpg",
           "description": "Iced tea with lemon. Demo item; price and availability are illustrative.",
           "cafeId": 4,
           "isActive": true
@@ -419,7 +479,7 @@
           "name": "Peach Tea",
           "category": "Tea & More",
           "price": 5500,
-          "imageUrl": "/figma/dd102.png",
+          "imageUrl": "/menu/1409.jpg",
           "description": "A fruity peach tea over ice. Demo item; price and availability are illustrative.",
           "cafeId": 4,
           "isActive": true
@@ -429,10 +489,30 @@
           "name": "Lychee Tea",
           "category": "Tea & More",
           "price": 5500,
-          "imageUrl": "/figma/c468c.png",
+          "imageUrl": "/menu/1410.jpg",
           "description": "Tea with a sweet lychee flavor. Demo item; price and availability are illustrative.",
           "cafeId": 4,
           "isActive": true
+        },
+        {
+          "menuItemId": 1411,
+          "name": "Milk Bread Roll",
+          "category": "Snacks",
+          "price": 3500,
+          "description": "Milk Bread Roll for campus pickup. Demo item; price and availability are illustrative.",
+          "cafeId": 4,
+          "isActive": true,
+          "imageUrl": "/menu/1411.jpg"
+        },
+        {
+          "menuItemId": 1412,
+          "name": "Strawberry Cream Sandwich",
+          "category": "Snacks",
+          "price": 5500,
+          "description": "Strawberry Cream Sandwich for campus pickup. Demo item; price and availability are illustrative.",
+          "cafeId": 4,
+          "isActive": true,
+          "imageUrl": "/menu/1412.jpg"
         }
       ]
     },
@@ -447,7 +527,7 @@
           "name": "Caffè Americano",
           "category": "Coffee",
           "price": 11000,
-          "imageUrl": "/figma/c78c7.png",
+          "imageUrl": "/menu/1501.jpg",
           "description": "Espresso and hot water. Demo item; price and availability are illustrative.",
           "cafeId": 5,
           "isActive": true
@@ -457,7 +537,7 @@
           "name": "Iced Caffè Americano",
           "category": "Coffee",
           "price": 11500,
-          "imageUrl": "/figma/c78c7.png",
+          "imageUrl": "/menu/1502.jpg",
           "description": "Espresso and water over ice. Demo item; price and availability are illustrative.",
           "cafeId": 5,
           "isActive": true
@@ -467,7 +547,7 @@
           "name": "Caffè Latte",
           "category": "Coffee",
           "price": 12500,
-          "imageUrl": "/figma/dda84.png",
+          "imageUrl": "/menu/1503.jpg",
           "description": "Espresso with steamed milk. Demo item; price and availability are illustrative.",
           "cafeId": 5,
           "isActive": true
@@ -477,7 +557,7 @@
           "name": "Iced Caffè Latte",
           "category": "Coffee",
           "price": 13000,
-          "imageUrl": "/figma/6f32b.png",
+          "imageUrl": "/menu/1504.jpg",
           "description": "Espresso and milk served cold. Demo item; price and availability are illustrative.",
           "cafeId": 5,
           "isActive": true
@@ -487,7 +567,7 @@
           "name": "Cappuccino",
           "category": "Coffee",
           "price": 12500,
-          "imageUrl": "/figma/dda84.png",
+          "imageUrl": "/menu/1505.jpg",
           "description": "Espresso with airy milk foam. Demo item; price and availability are illustrative.",
           "cafeId": 5,
           "isActive": true
@@ -497,7 +577,7 @@
           "name": "Caffè Mocha",
           "category": "Coffee",
           "price": 14500,
-          "imageUrl": "/figma/2532d.png",
+          "imageUrl": "/menu/1506.jpg",
           "description": "Espresso with chocolate and milk. Demo item; price and availability are illustrative.",
           "cafeId": 5,
           "isActive": true
@@ -507,7 +587,7 @@
           "name": "Caramel Macchiato",
           "category": "Coffee",
           "price": 15500,
-          "imageUrl": "/figma/e532a.png",
+          "imageUrl": "/menu/1507.jpg",
           "description": "Milk and espresso with caramel flavor. Demo item; price and availability are illustrative.",
           "cafeId": 5,
           "isActive": true
@@ -517,7 +597,7 @@
           "name": "Cold Brew",
           "category": "Coffee",
           "price": 13500,
-          "imageUrl": "/figma/c78c7.png",
+          "imageUrl": "/menu/1508.jpg",
           "description": "Coffee brewed slowly and served cold. Demo item; price and availability are illustrative.",
           "cafeId": 5,
           "isActive": true
@@ -527,7 +607,7 @@
           "name": "Matcha Latte",
           "category": "Tea & More",
           "price": 14500,
-          "imageUrl": "/figma/6f32b.png",
+          "imageUrl": "/menu/1509.jpg",
           "description": "Matcha with milk over ice. Demo item; price and availability are illustrative.",
           "cafeId": 5,
           "isActive": true
@@ -537,10 +617,30 @@
           "name": "Chocolate Cream",
           "category": "Tea & More",
           "price": 15000,
-          "imageUrl": "/figma/d790d.png",
+          "imageUrl": "/menu/1510.jpg",
           "description": "A creamy chocolate drink. Demo item; price and availability are illustrative.",
           "cafeId": 5,
           "isActive": true
+        },
+        {
+          "menuItemId": 1511,
+          "name": "Blueberry Scone",
+          "category": "Snacks",
+          "price": 8500,
+          "description": "Blueberry Scone for campus pickup. Demo item; price and availability are illustrative.",
+          "cafeId": 5,
+          "isActive": true,
+          "imageUrl": "/menu/1511.jpg"
+        },
+        {
+          "menuItemId": 1512,
+          "name": "Cinnamon Roll",
+          "category": "Snacks",
+          "price": 8000,
+          "description": "Cinnamon Roll for campus pickup. Demo item; price and availability are illustrative.",
+          "cafeId": 5,
+          "isActive": true,
+          "imageUrl": "/menu/1512.jpg"
         }
       ]
     }
