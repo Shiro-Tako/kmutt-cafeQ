@@ -69,6 +69,70 @@ function confirmationFingerprint(body) {
 
 const router = Router();
 
+function newAccount(state, body) {
+  const { name, email, password } = body ?? {};
+  if (typeof name !== 'string' || !name.trim() || name.length > 80 || typeof email !== 'string' ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) || email.length > 254 ||
+      typeof password !== 'string' || password.length < 8 || password.length > 128) {
+    fail(400, 'INVALID_ACCOUNT', 'Enter a name, valid email and password of 8 to 128 characters.');
+  }
+  const normalized = email.trim().toLowerCase();
+  if (state.users.some((user) => user.email === normalized)) fail(409, 'EMAIL_EXISTS', 'This email is already registered. Log in with that account.');
+  const user = { userId: Math.max(200, ...state.users.map((entry) => entry.userId)) + 1, name: name.trim(), email: normalized, passwordHash: hashPassword(password), role: 'staff', staffCafeIds: [] };
+  state.users.push(user);
+  return user;
+}
+
+router.post('/auth/store-register', async (request, response) => {
+  const result = await transact((state) => {
+    const { storeName, pickupPoint } = request.body ?? {};
+    if (typeof storeName !== 'string' || !storeName.trim() || storeName.length > 80 ||
+        typeof pickupPoint !== 'string' || !pickupPoint.trim() || pickupPoint.length > 160) {
+      fail(400, 'INVALID_STORE', 'Enter a store name (up to 80 characters) and pickup point (up to 160 characters).');
+    }
+    const { email, password } = request.body;
+    const existing = typeof email === 'string' && state.users.find((entry) => entry.email === email.trim().toLowerCase());
+    if (existing && (typeof password !== 'string' || password.length > 128 || !checkPassword(password, existing.passwordHash))) {
+      fail(401, 'INVALID_LOGIN', 'This email already has an account. Enter its current password to create your store.');
+    }
+    const user = existing || newAccount(state, request.body);
+    if (state.cafes.some((cafe) => cafe.ownerUserId === user.userId && cafe.name.toLowerCase() === storeName.trim().toLowerCase())) {
+      fail(409, 'STORE_EXISTS', 'You already own a store with this name. Log in on the store side to manage it.');
+    }
+    const cafeId = Math.max(0, ...state.cafes.map((cafe) => cafe.cafeId)) + 1;
+    state.cafes.push({ cafeId, name: storeName.trim(), pickupPoint: pickupPoint.trim(), ownerUserId: user.userId });
+    user.staffCafeIds.push(cafeId);
+    user.role = 'staff';
+    return startSession(state, user);
+  });
+  setCookie(response, result.token);
+  response.status(201).json(result.user);
+});
+
+router.get('/staff/cafes/:cafeId/team', async (request, response) => {
+  response.json(await transact((state) => {
+    staffFrom(state, request);
+    const cafe = state.cafes.find((entry) => entry.cafeId === Number(request.params.cafeId));
+    return { ownerUserId: cafe.ownerUserId, items: state.users.filter((user) => user.staffCafeIds.includes(cafe.cafeId)).map(({ userId, name, email }) => ({ userId, name, email })) };
+  }));
+});
+
+router.post('/staff/cafes/:cafeId/team', async (request, response) => {
+  const item = await transact((state) => {
+    const owner = staffFrom(state, request);
+    const cafe = state.cafes.find((entry) => entry.cafeId === Number(request.params.cafeId));
+    if (cafe.ownerUserId !== owner.userId) fail(403, 'OWNER_REQUIRED', 'Only the store owner can add staff.');
+    const email = request.body?.email;
+    if (typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) fail(400, 'INVALID_EMAIL', 'Enter a valid email.');
+    const user = state.users.find((entry) => entry.email === email.trim().toLowerCase()) ?? newAccount(state, request.body);
+    if (user.staffCafeIds.includes(cafe.cafeId)) fail(409, 'ALREADY_STAFF', 'This account already manages this store.');
+    user.staffCafeIds.push(cafe.cafeId);
+    user.role = 'staff';
+    return { userId: user.userId, name: user.name, email: user.email };
+  });
+  response.status(201).json(item);
+});
+
 router.post('/auth/register', async (request, response) => {
   const result = await transact((state) => {
     const { name, email, password, phone } = request.body ?? {};
@@ -105,6 +169,7 @@ router.post('/auth/login', async (request, response) => {
     if (typeof email !== 'string' || typeof password !== 'string' || password.length > 128) fail(400, 'INVALID_ACCOUNT', 'Enter your email and password.');
     const user = state.users.find((entry) => entry.email === email.trim().toLowerCase());
     if (!user || !checkPassword(password, user.passwordHash)) fail(401, 'INVALID_LOGIN', 'Email or password is incorrect.');
+    if (request.body.staff === true && !user.staffCafeIds.length) fail(403, 'STORE_ACCESS_DENIED', 'This account has no assigned store. Ask the owner to add your email.');
     return startSession(state, user);
   });
   setCookie(response, result.token);

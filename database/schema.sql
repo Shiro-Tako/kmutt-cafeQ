@@ -10,6 +10,13 @@ CREATE TABLE IF NOT EXISTS cafe_staff (
  user_id INT NOT NULL, cafe_id INT NOT NULL, PRIMARY KEY (user_id,cafe_id),
  FOREIGN KEY (user_id) REFERENCES users(id), FOREIGN KEY (cafe_id) REFERENCES cafes(id)
 );
+CREATE TABLE IF NOT EXISTS cafe_owners (
+ cafe_id INT PRIMARY KEY, user_id INT NOT NULL,
+ FOREIGN KEY (cafe_id) REFERENCES cafes(id), FOREIGN KEY (user_id) REFERENCES users(id)
+);
+-- Existing demo stores: designate the earliest staff account as owner once.
+INSERT IGNORE INTO cafe_owners (cafe_id,user_id)
+ SELECT cafe_id, MIN(user_id) FROM cafe_staff GROUP BY cafe_id;
 CREATE TABLE IF NOT EXISTS menu_items (
  id INT PRIMARY KEY, cafe_id INT NOT NULL, name VARCHAR(80) NOT NULL, category VARCHAR(30) NOT NULL,
  description VARCHAR(160) NOT NULL, price INT NOT NULL CHECK (price >= 0), image_url VARCHAR(255),

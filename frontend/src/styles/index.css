@@ -399,3 +399,14 @@ h1, h2, .feature strong, .menu-item-copy strong, .drink-card strong { font-famil
   .desktop-view .payment-screen .payment-section { padding-inline: 48px; }
   .desktop-view .detail-screen { width: min(100%, 720px); }
 }
+.staff-access form { margin-top: 28px; gap: 22px; }
+.staff-access .login-help { line-height: 1.5; }
+.staff-team { margin-top: 24px; }
+.staff-team > p, .team-form > p { font-size: 13px; line-height: 1.6; color: var(--muted); margin-block: 12px; }
+.team-list { display: grid; gap: 12px; margin-block: 20px; }
+.team-list li { display: grid; gap: 5px; border-radius: 12px; padding: 16px; overflow-wrap: anywhere; }
+.team-list span { font-size: 13px; }
+.team-list small { color: var(--accent-text); font-weight: 600; }
+.team-form { border-radius: 14px; padding: 20px; max-width: 580px; }
+.team-form input { min-height: 42px; }
+.team-form .primary { min-height: 44px; }

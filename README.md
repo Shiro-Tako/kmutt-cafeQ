@@ -101,5 +101,6 @@ Browser → `/api` → Express → MySQL ในโหมด laptop หรือ 
 - [พัฒนาด้วย Vite + Express + JSON โดยไม่ต้องติดตั้ง MySQL](docs/demo-version.md)
 - [เปิดเซิร์ฟเวอร์ MySQL และ tunnel](docs/laptop-server.md)
 - [โครงสร้างฐานข้อมูลตาม presentation](docs/presentation-schema.md)
+- [สมัครร้านและเพิ่มบัญชีพนักงานหลายคน](docs/store-team.md)
 - [แบ่งงานทีม](docs/team-plan.md)
 - [API contract](docs/api-contract.md), [database contract](docs/database-contract.md), [backend handoff](docs/backend-handoff.md): ข้อตกลงประสานงานทีม ควรตรวจเทียบกับเดโมก่อนเชื่อม branch ของสมาชิก

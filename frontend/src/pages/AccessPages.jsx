@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { asset, Icon } from '../components/layout/CafeLayout.jsx';
 import { cafes } from '../data/menu.js';
-import { register, sessionEnabled, signIn } from '../services/auth.js';
+import { register, registerStore, sessionEnabled, signIn } from '../services/auth.js';
+import { useMenu } from '../data/MenuContext.jsx';
 
 function Brand({ welcome = false }) {
   return <div className="brand"><h1>KMUTT CafeQ</h1><p>{welcome ? 'Grab your favorite drink' : 'Skip the line, grab your favorite drink'}</p></div>;
@@ -23,6 +24,7 @@ export function LoginPage({ staff = false, onStaffLogin, onAccount }) {
   const [error, setError] = useState('');
   const [pending, setPending] = useState(false);
   const navigate = useNavigate();
+  const { refresh } = useMenu();
   const signUp = mode === 'Sign Up';
 
   async function submit(event) {
@@ -36,8 +38,11 @@ export function LoginPage({ staff = false, onStaffLogin, onAccount }) {
       }
       setPending(true);
       try {
-        const credentials = { email: fields.get('username').trim(), password: fields.get('password') };
-        const account = signUp ? await register({ ...credentials, name: fields.get('name').trim(), phone: fields.get('phone').trim() }) : await signIn(credentials);
+        const credentials = { email: fields.get('username').trim(), password: fields.get('password'), staff };
+        const account = signUp ? staff
+          ? await registerStore({ ...credentials, name: fields.get('name').trim(), storeName: fields.get('storeName').trim(), pickupPoint: fields.get('pickupPoint').trim() })
+          : await register({ ...credentials, name: fields.get('name').trim(), phone: fields.get('phone').trim() }) : await signIn(credentials);
+        refresh();
         onAccount(account);
         if (staff && !account.staffCafeIds?.length) {
           setError('This account has no assigned café.');
@@ -69,9 +74,9 @@ export function LoginPage({ staff = false, onStaffLogin, onAccount }) {
       <div className="login-wallpaper" style={{ '--wallpaper': `url("${asset('86a85.png')}")` }} />
       <Brand />
       <section className={staff ? 'login-panel outlined staff-access' : 'login-panel outlined'}>
-        {staff && <><h2>Store access</h2><p>{sessionEnabled ? 'Sign in with your assigned staff account.' : 'Demo only. Use sample credentials.'}</p></>}
+        {staff && <><h2>{signUp ? 'Create your store' : 'Store access'}</h2><p>{signUp ? 'Already a customer? Use your existing email and current password. New users can create an account here too. Add your team after creating the store.' : 'Log in as an owner or staff member. New café? Choose Sign Up.'}</p></>}
         <div className="segments login-tabs">
-          {(staff && sessionEnabled ? ['Login'] : ['Login', 'Sign Up']).map((tab) => <button key={tab} disabled={pending} aria-pressed={tab === mode} onClick={() => { setMode(tab); setHelp(false); setError(''); }}>{tab}</button>)}
+          {['Login', 'Sign Up'].map((tab) => <button key={tab} disabled={pending} aria-pressed={tab === mode} onClick={() => { setMode(tab); setHelp(false); setError(''); }}>{tab}</button>)}
         </div>
         <form onSubmit={submit}>
           {staff && !sessionEnabled && (
@@ -84,7 +89,8 @@ export function LoginPage({ staff = false, onStaffLogin, onAccount }) {
             </div>
           )}
           {sessionEnabled && signUp && <input name="name" aria-label="Name" placeholder="Name" autoComplete="name" required />}
-          {sessionEnabled && signUp && <input name="phone" aria-label="Phone (optional)" placeholder="Phone (optional)" autoComplete="tel" type="tel" maxLength={30} />}
+          {sessionEnabled && signUp && staff && <><input name="storeName" aria-label="Store name" placeholder="Store name" maxLength={80} required /><input name="pickupPoint" aria-label="Pickup point" placeholder="Pickup point / building" maxLength={160} required /></>}
+          {sessionEnabled && signUp && !staff && <input name="phone" aria-label="Phone (optional)" placeholder="Phone (optional)" autoComplete="tel" type="tel" maxLength={30} />}
           <input name="username" aria-label={sessionEnabled ? 'Email' : 'Username or email'} placeholder={sessionEnabled ? 'Email' : 'Username or email'} type={sessionEnabled ? 'email' : 'text'} autoComplete="username" required={staff || sessionEnabled} />
           <div className="password-field">
             <input name="password" aria-label="Password" placeholder="Password" autoComplete={signUp ? 'new-password' : 'current-password'} type={visible ? 'text' : 'password'} required={staff || sessionEnabled} />
@@ -95,7 +101,7 @@ export function LoginPage({ staff = false, onStaffLogin, onAccount }) {
             : <button type="button" className="forgot-password" onClick={() => setHelp(!help)}>Forgot password?</button>}
           {help && <p role="status" className="login-help">Password reset is unavailable in this preview.</p>}
           {error && <p role="alert" className="login-help">{error}</p>}
-          <button type="submit" className="primary login-submit" disabled={pending}>{pending ? 'Please wait…' : mode}</button>
+          <button type="submit" className="primary login-submit" disabled={pending}>{pending ? 'Please wait…' : staff && signUp ? 'Create store' : mode === 'Login' ? 'Log in' : 'Create account'}</button>
         </form>
         <div className="login-divider">or</div>
         <Link className="staff-login outlined" to={staff ? '/login' : '/staff/login'}>{staff ? 'Switch to customer side' : 'Switch to store side'}</Link>

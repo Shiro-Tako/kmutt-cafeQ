@@ -10,6 +10,7 @@ import HomePage from './pages/HomePage.jsx';
 import OnlinePaymentPage from './pages/OnlinePaymentPage.jsx';
 import { BasketPage, PaymentPage, StaffPage } from './pages/OrderPages.jsx';
 import { StaffLayout, StaffMenuPage } from './pages/StaffMenuPage.jsx';
+import StaffTeamPage from './pages/StaffTeamPage.jsx';
 import { getSession, sessionEnabled, signOut } from './services/auth.js';
 import { demoItemIds, writeMenuItem } from './services/catalog.js';
 import { getFavorites, saveFavorite } from './services/favorites.js';
@@ -158,10 +159,11 @@ export default function App() {
       <Route path="/basket" element={<BasketPage basket={basket} orders={orders} account={account} changeQuantity={changeQuantity} clearCafe={clearCafe} />} />
       <Route path="/payment" element={<PaymentPage basket={basket} />} />
       <Route path="/payment/online" element={<OnlinePaymentPage basket={basket} placeOrder={placeOrder} clearCafe={clearCafe} account={account} />} />
-      <Route path="/staff" element={sessionLoading ? <p role="status">Checking session…</p> : activeStaffCafe ? <StaffLayout cafe={activeStaffCafe} onLogout={logout} /> : <Navigate to="/staff/login" replace />}>
+      <Route path="/staff" element={sessionLoading || (account?.staffCafeIds?.length && !staffStore && !catalog.error) ? <p role="status">Loading your store…</p> : activeStaffCafe ? <StaffLayout cafe={activeStaffCafe} onLogout={logout} /> : <Navigate to="/staff/login" replace />}>
         <Route index element={<Navigate to="orders" replace />} />
         <Route path="orders" element={<StaffPage cafe={activeStaffCafe} cafeId={staffStore?.cafeId} orders={orders} advanceOrder={advanceOrder} />} />
         <Route path="menu" element={<StaffMenuPage key={activeStaffCafe} cafe={activeStaffCafe} editMenuItem={editMenuItem} addMenuItem={addMenuItem} deleteMenuItem={deleteMenuItem} />} />
+        <Route path="team" element={<StaffTeamPage key={staffStore?.cafeId} />} />
       </Route>
       <Route path="*" element={<main className="missing"><h1>Page not found</h1><Link to="/">Back to home</Link></main>} />
     </Routes>

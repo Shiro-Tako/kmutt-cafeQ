@@ -16,7 +16,7 @@ export function StaffLayout({ cafe, onLogout }) {
     <main className="staff-screen">
       <section>
         <div className="spread staff-title">
-          <h1>{cafe} — {pathname.endsWith('/menu') ? 'Menu' : 'Orders'}</h1>
+          <h1>{cafe} — {pathname.endsWith('/team') ? 'Team' : pathname.endsWith('/menu') ? 'Menu' : 'Orders'}</h1>
           <button aria-label="Staff settings" aria-expanded={settings} onClick={() => setSettings(!settings)}><Icon file="474a4.svg" /></button>
         </div>
         {settings && (
@@ -32,6 +32,7 @@ export function StaffLayout({ cafe, onLogout }) {
         <nav className="staff-nav" aria-label="Store navigation">
           <NavLink to="orders">Orders</NavLink>
           <NavLink to="menu">Menu</NavLink>
+          {sessionEnabled && <NavLink to="team">Team</NavLink>}
         </nav>
         {allowedCafes.length > 1 && <label className="store-select">Active café
           <select value={cafe} onChange={(event) => selectStaffCafe(event.target.value)}>

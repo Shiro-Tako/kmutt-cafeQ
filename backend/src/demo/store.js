@@ -20,7 +20,11 @@ export function checkPassword(password, encoded) {
 
 async function read() {
   try {
-    return JSON.parse(await readFile(file, 'utf8'));
+    const state = JSON.parse(await readFile(file, 'utf8'));
+    for (const cafe of state.cafes) {
+      cafe.ownerUserId ??= state.users.find((user) => user.staffCafeIds.includes(cafe.cafeId))?.userId;
+    }
+    return state;
   } catch (error) {
     if (error.code !== 'ENOENT') throw error;
     return createInitialState();
@@ -30,7 +34,7 @@ async function read() {
 export async function createInitialState() {
     const password = process.env.DEMO_SEED_PASSWORD || 'CafeQ123!';
     return {
-      cafes: await listCafes(),
+      cafes: (await listCafes()).map((cafe) => ({ ...cafe, ownerUserId: cafe.cafeId === 1 ? 202 : 203 })),
       menu: await listMenuItems({}),
       users: [
         { userId: 201, name: 'Somchai', email: 'customer@example.test', passwordHash: hashPassword(password), staffCafeIds: [] },
