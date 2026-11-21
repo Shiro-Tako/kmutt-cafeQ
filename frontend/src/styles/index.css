@@ -328,3 +328,74 @@ h1, h2, .feature strong, .menu-item-copy strong, .drink-card strong { font-famil
 }
 .header-actions img, .staff-title img, .staff-logout img, .profile-menu img[src$=".svg"], .password-field img { filter: brightness(0) saturate(100%) invert(23%) sepia(84%) saturate(1620%) hue-rotate(355deg); }
 .detail-description, .online-summary { background: linear-gradient(135deg, var(--surface), #fae5d7); }
+
+/* The saved display preference keeps the compact layout available on a PC. */
+.desktop-topbar, .desktop-basket { display: none; }
+.profile-menu { width: 240px; }
+.profile-menu .view-setting { display: grid; gap: 7px; padding: 14px 18px; font-size: 13px; }
+.view-setting select { min-height: 40px; width: 100%; background: var(--canvas); border: 1px solid var(--line); border-radius: 8px; padding: 6px; }
+.view-setting small { font-size: 11px; color: var(--muted); line-height: 1.4; }
+
+@media (min-width: 1000px) {
+  .desktop-view { --gutter: 32px; }
+  .desktop-view .cafe-screen { width: min(100%, 1440px); display: grid; grid-template-columns: minmax(0, 1fr) 310px; grid-template-rows: auto auto 1fr; align-content: start; box-shadow: 0 0 40px #4e291a0c; }
+  .desktop-view .desktop-topbar { display: flex; align-items: center; justify-content: space-between; gap: 24px; grid-column: 1 / -1; padding: 20px 32px; border-bottom: 1px solid var(--line); background: var(--surface); }
+  .desktop-brand { font-size: 24px; font-weight: 750; letter-spacing: .04em; }
+  .desktop-brand span { color: var(--accent-text); }
+  .desktop-brand small { display: block; font-size: 9px; letter-spacing: .18em; color: var(--muted); margin-top: 3px; }
+  .desktop-topbar nav { display: flex; gap: 10px; }
+  .desktop-topbar nav a { padding: 12px 18px; border-radius: 10px; font-size: 14px; }
+  .desktop-topbar nav a[aria-current] { background: #f5d7be; color: #7a351b; font-weight: 700; }
+  .desktop-account { font-size: 13px; max-width: 180px; overflow-wrap: anywhere; }
+  .desktop-view .screen-header { grid-column: 1; padding-top: 22px; align-items: center; min-height: 82px; }
+  .desktop-view .cafe-screen .screen-header h1 { max-width: none; font-size: 24px; padding: 0; }
+  .desktop-view .screen-content { grid-column: 1; min-width: 0; padding-bottom: 40px; }
+  .desktop-view .bottom-nav { display: none; }
+  .desktop-view .desktop-basket { display: block; grid-column: 2; grid-row: 2 / 4; border-left: 1px solid var(--line); background: #fffaf5d9; padding: 28px 22px; align-self: stretch; }
+  .desktop-basket > .spread h2 { font-family: Georgia, serif; font-size: 22px; }
+  .desktop-basket > .spread a { font-size: 12px; text-decoration: underline; }
+  .basket-hint { font-size: 12px; color: var(--muted); line-height: 1.6; margin-top: 10px; }
+  .basket-empty { display: grid; justify-items: center; text-align: center; border: 1px dashed var(--line); border-radius: 16px; margin: 26px 0; padding: 32px 12px; gap: 12px; }
+  .basket-empty img { width: 42px; filter: brightness(.4); }
+  .basket-empty p { font-family: Georgia, serif; font-size: 20px; }
+  .basket-empty span, .basket-empty a { font-size: 13px; }
+  .basket-empty a { color: var(--accent-text); text-decoration: underline; }
+  .desktop-basket-group { padding-block: 22px; border-bottom: 1px solid var(--line); }
+  .desktop-basket-group h3 { font-size: 14px; margin-bottom: 16px; color: var(--accent-text); }
+  .desktop-basket-line { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 20px; }
+  .desktop-basket-line > img { width: 54px; height: 64px; border-radius: 9px; object-fit: cover; }
+  .desktop-basket-line > div { flex: 1; min-width: 0; }
+  .desktop-basket-line strong { display: block; font-size: 13px; line-height: 1.4; }
+  .desktop-basket-line small { display: block; color: var(--muted); margin-top: 4px; }
+  .desktop-basket-line .quantity { margin-top: 8px; font-size: 13px; }
+  .desktop-basket-line .square-button { width: 28px; height: 28px; }
+  .desktop-basket-group > .spread { font-size: 14px; margin-block: 16px; }
+  .desktop-basket-group .primary { min-height: 44px; font-size: 14px; }
+  .desktop-view .feature { margin-top: 0; min-height: 270px; padding: 28px; gap: 30px; }
+  .desktop-view .feature strong { font-size: clamp(24px, 2.4vw, 36px); max-width: 300px; }
+  .desktop-view .feature-photo { max-height: 290px; width: 43%; }
+  .desktop-view .feature small { font-size: 14px; }
+  .desktop-view .recommendations { margin-top: 32px; }
+  .desktop-view .section-heading h2, .desktop-view .shop h2 { font-size: 23px; }
+  .desktop-view .recommendation-row { grid-auto-flow: initial; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-right: 0; overflow: visible; }
+  .desktop-view .recommendation-row .drink-card { height: 240px; }
+  .desktop-view .shop-banner { min-height: 200px; background-position: center 55%; }
+  .desktop-view .catalog-list { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+  .desktop-view .menu-item-copy { padding: 14px; }
+  .desktop-view .menu-item-copy strong { font-size: 17px; }
+  .desktop-view .menu-item-copy span { font-size: 13px; }
+  .desktop-view .cafe-filter { margin-top: 8px; max-width: 440px; }
+  .desktop-view .search { margin-top: 18px; height: 44px; font-size: 14px; }
+  .desktop-view .category-tabs { min-height: 42px; margin-top: 20px; }
+  .desktop-view .favorites-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-top: 0; }
+  .desktop-view .favorites-grid .drink-card { height: 270px; }
+  .desktop-view .basket-tabs { width: 230px; height: 40px; font-size: 14px; }
+  .desktop-view .basket-row { grid-template-columns: 64px 1fr auto; padding: 16px; gap: 16px; }
+  .desktop-view .basket-buttons > * { min-height: 44px; }
+  .desktop-view .history-card { min-height: 145px; }
+  .desktop-view .staff-screen { width: min(100%, 1100px); }
+  .desktop-view .staff-menu-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .desktop-view .payment-screen { width: min(100%, 760px); }
+  .desktop-view .payment-screen .payment-section { padding-inline: 48px; }
+  .desktop-view .detail-screen { width: min(100%, 720px); }
+}

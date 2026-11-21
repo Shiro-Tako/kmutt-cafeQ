@@ -21,6 +21,14 @@ function DrinkRoute(props) {
 }
 
 export default function App() {
+  const [viewMode, setViewMode] = useStoredState('cafeq-view-mode', 'auto');
+  const [wideScreen, setWideScreen] = useState(() => window.matchMedia('(min-width: 1000px)').matches);
+  useEffect(() => {
+    const query = window.matchMedia('(min-width: 1000px)');
+    const update = () => setWideScreen(query.matches);
+    query.addEventListener('change', update);
+    return () => query.removeEventListener('change', update);
+  }, []);
   const [favorites, setFavorites] = useStoredState('cafeq-favorites', ['sweet-heaven', 'iced-chocolate', 'lemonade', 'cappuccino', 'lemon-tea']);
   const [basket, setBasket] = useStoredState(sessionEnabled ? 'cafeq-account-basket' : 'cafeq-basket', sessionEnabled ? {} : { lemonade: 2, 'sweet-heaven': 1, 'hot-chocolate': 2, 'thai-tea': 1, cake: 1 });
   const [orders, setOrders] = useStoredState('cafeq-orders', initialOrders);
@@ -137,7 +145,8 @@ export default function App() {
   }
 
   return (
-    <MenuContext.Provider value={{ ...catalog, account, logout, staffStore, allowedCafes, selectStaffCafe: setSelectedCafe }}>
+    <MenuContext.Provider value={{ ...catalog, account, logout, staffStore, allowedCafes, selectStaffCafe: setSelectedCafe, viewMode, setViewMode, basket, changeQuantity }}>
+    <div className={wideScreen && viewMode !== 'mobile' ? 'desktop-view' : 'mobile-view'}>
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/welcome" element={<WelcomePage />} />
@@ -156,6 +165,7 @@ export default function App() {
       </Route>
       <Route path="*" element={<main className="missing"><h1>Page not found</h1><Link to="/">Back to home</Link></main>} />
     </Routes>
+    </div>
     </MenuContext.Provider>
   );
 }
