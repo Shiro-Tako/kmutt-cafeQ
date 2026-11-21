@@ -4,16 +4,16 @@ import { useApiResource } from './useApiResource.js';
 import useStoredState from './useStoredState.js';
 import { getOrderNotification } from '../data/orderNotifications.js';
 
-export default function useOrderNotifications(account, cafes, enabled) {
+export default function useOrderNotifications(account, cafes, enabled, menu) {
   const userId = account?.userId;
   const load = useCallback((signal) => userId ? getOrders(signal) : null, [userId]);
   const resource = useApiResource(load, enabled && Boolean(userId), 5000);
   const [memory, setMemory] = useStoredState('cafeq-order-notifications', {});
   const [toast, setToast] = useState(null);
   const notifications = useMemo(() => (resource.data?.items ?? [])
-    .map((order) => getOrderNotification(order, cafes))
+    .map((order) => getOrderNotification(order, cafes, menu))
     .filter(Boolean)
-    .map((item) => ({ ...item, unread: !(memory?.[userId]?.read ?? []).includes(item.key) })), [resource.data, cafes, memory, userId]);
+    .map((item) => ({ ...item, unread: !(memory?.[userId]?.read ?? []).includes(item.key) })), [resource.data, cafes, menu, memory, userId]);
 
   useEffect(() => {
     if (!enabled || !userId) return;

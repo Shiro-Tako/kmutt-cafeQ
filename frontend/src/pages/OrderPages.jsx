@@ -49,7 +49,7 @@ export function BasketPage({ basket, orders, account, changeQuantity, clearCafe 
   const history = useApiResource(loadOrders, sessionEnabled && showOrders && Boolean(account), 5000);
   const myOrders = sessionEnabled ? (history.data?.items ?? []).map((order) => toDisplayOrder(order, cafes)) : orders.filter((order) => order.customer === 'Somchai P.');
   return (
-    <CafeLayout title="Your Basket">
+    <CafeLayout pose="orders" title={showOrders ? "Your orders" : "Your basket"}>
       <div className="segments basket-tabs">
         <button aria-pressed={!showOrders} onClick={() => setParams({})}>Basket</button>
         <button aria-pressed={showOrders} onClick={() => setParams({ tab: 'orders' })}>Orders</button>

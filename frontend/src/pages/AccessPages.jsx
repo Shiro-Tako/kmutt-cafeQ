@@ -4,6 +4,7 @@ import { asset, Icon } from '../components/layout/CafeLayout.jsx';
 import { cafes } from '../data/menu.js';
 import { register, registerStore, sessionEnabled, signIn } from '../services/auth.js';
 import { useMenu } from '../data/MenuContext.jsx';
+import loginAnt from '../assets/campus/ant-welcome.png';
 
 function Brand({ welcome = false }) {
   return <div className="brand"><h1>KMUTT CafeQ</h1><p>{welcome ? 'Grab your favorite drink' : 'Skip the line, grab your favorite drink'}</p></div>;
@@ -73,6 +74,7 @@ export function LoginPage({ staff = false, onStaffLogin, onAccount }) {
     <main className="login-screen">
       <div className="login-wallpaper" style={{ '--wallpaper': `url("${asset('86a85.png')}")` }} />
       <Brand />
+      <img className="login-mascot" src={loginAnt} width="112" height="112" alt="" />
       <section className={staff ? 'login-panel outlined staff-access' : 'login-panel outlined'}>
         {staff && <><h2>{signUp ? 'Create your store' : 'Store access'}</h2><p>{signUp ? 'Already a customer? Use your existing email and current password. New users can create an account here too. Add your team after creating the store.' : 'Log in as an owner or staff member. New café? Choose Sign Up.'}</p></>}
         <div className="segments login-tabs">

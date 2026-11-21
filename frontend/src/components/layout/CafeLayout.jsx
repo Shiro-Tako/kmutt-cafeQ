@@ -3,6 +3,13 @@ import { Link, NavLink, useNavigate } from 'react-router';
 import { useMenu } from '../../data/MenuContext.jsx';
 import { sessionEnabled } from '../../services/auth.js';
 import { baht } from '../../data/menu.js';
+import CampusAnt from '../common/CampusAnt.jsx';
+import CampusSearch from './CampusSearch.jsx';
+import universityMark from '../../assets/campus/kmutt.jpg';
+import homeIcon from '../../assets/campus/nav-home.png';
+import cafesIcon from '../../assets/campus/nav-cafes.png';
+import basketIcon from '../../assets/campus/nav-basket.png';
+import favoritesIcon from '../../assets/campus/nav-favorites.png';
 
 export const asset = (file) => file.startsWith('/') || file.startsWith('https://') ? file : `${import.meta.env.BASE_URL}figma/${file}`;
 
@@ -11,10 +18,10 @@ export function Icon({ file, className }) {
 }
 
 const tabs = [
-  ['/', 'Home', '8a8d4.svg', 'b0f25.svg'],
-  ['/cafes', 'Cafes', '4612e.svg', '42cd8.svg'],
-  ['/basket', 'My Order', '536f7.svg', '8fac3.svg'],
-  ['/favorites', 'Favorites', 'cdf20.svg', '7dc11.svg'],
+  ['/', 'Home', homeIcon],
+  ['/cafes', 'Cafes', cafesIcon],
+  ['/basket', 'My Order', basketIcon],
+  ['/favorites', 'Favorites', favoritesIcon],
 ];
 
 function DesktopBasket() {
@@ -41,7 +48,7 @@ function DesktopBasket() {
   </aside>;
 }
 
-export default function CafeLayout({ title, children }) {
+export default function CafeLayout({ title, children, pose }) {
   const { account, logout, viewMode, setViewMode, orderNotifications } = useMenu();
   const navigate = useNavigate();
   const [panel, setPanel] = useState('');
@@ -60,7 +67,9 @@ export default function CafeLayout({ title, children }) {
         <Link className="desktop-account" to={account ? '/basket?tab=orders' : '/login'}>{account ? account.name : 'Log in / Sign up'}</Link>
       </div>
       <header className="screen-header">
-        <h1>{title}</h1>
+        <div className="campus-heading">{pose ? <CampusAnt pose={pose} /> : <img src={universityMark} width="44" height="44" alt="KMUTT" />}<h1>{title}</h1></div>
+        {pose && <img className="mobile-kmutt" src={universityMark} alt="KMUTT" />}
+        <CampusSearch />
         <div className="header-actions">
           <button className={`notification-bell${orderNotifications.unreadCount ? ' has-unread' : ''}`} aria-label={`Notifications${orderNotifications.unreadCount ? ` (${orderNotifications.unreadCount} unread)` : ''}`} aria-expanded={panel === 'notifications'} aria-controls="order-notification-panel" onClick={() => toggle('notifications')}><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a1 1 0 0 0-1 1v1.08A6 6 0 0 0 6 10v5l-2 3v1h16v-1l-2-3v-5a6 6 0 0 0-5-5.92V3a1 1 0 0 0-1-1Zm-2 18a2 2 0 0 0 4 0Z" /></svg>{orderNotifications.unreadCount > 0 && <span className="notification-count" aria-hidden="true">{orderNotifications.unreadCount > 99 ? '99+' : orderNotifications.unreadCount}</span>}</button>
           <button aria-label="Menu" aria-expanded={panel === 'menu'} onClick={() => toggle('menu')}><Icon file="63585.svg" /></button>
@@ -68,7 +77,7 @@ export default function CafeLayout({ title, children }) {
         {panel === 'menu' && (
           <div className="profile-menu">
             <label className="view-setting">Display view<select aria-label="Display view" value={viewMode} onChange={(event) => setViewMode(event.target.value)}><option value="auto">Auto (screen size)</option><option value="desktop">Desktop</option><option value="mobile">Mobile</option></select><small>Desktop layout on screens 1000px and wider.</small></label>
-            <button onClick={() => setNotice(account?.name ?? (sessionEnabled ? 'Guest' : 'Customer preview · Somchai P.'))}><Icon file="49e89.png" />Profile</button>
+            <Link to={account ? '/profile' : '/login'} onClick={() => setPanel('')}><img src={account?.photo || asset('49e89.png')} alt="" />Profile</Link>
             {sessionEnabled && account ? <button onClick={async () => {
               try { await logout(); navigate('/login'); }
               catch (error) { setNotice(error.message); }
@@ -81,7 +90,8 @@ export default function CafeLayout({ title, children }) {
             {orderNotifications.loading && <p role="status">Checking your orders…</p>}
             {orderNotifications.error && <p role="alert">Could not check order updates. <button onClick={orderNotifications.refresh}>Retry</button></p>}
             {orderNotifications.items.map((item) => <Link className="ready-notification" key={item.key} to={`/basket?tab=orders&order=${item.orderId}`} onClick={() => { orderNotifications.markRead([item.key]); setPanel(''); }}>
-              <strong>{item.title}</strong><span>{item.cafe}</span><small>{item.queueNumber ? `Queue #${String(item.queueNumber).padStart(3, '0')}` : `Order #${item.orderId}`} · {item.detail}</small>
+              <img className="notification-photo" src={asset(item.image || '4612e.svg')} alt={item.image ? item.imageAlt : ''} />
+              <div className="notification-copy"><strong>{item.title}</strong><span>{item.cafe}</span><small>{item.queueNumber ? `Queue #${String(item.queueNumber).padStart(3, '0')}` : `Order #${item.orderId}`} · {item.detail}</small></div>
             </Link>)}
             {!orderNotifications.loading && !orderNotifications.error && orderNotifications.items.length === 0 && <p>No pickup notifications yet. We’ll let you know when your order is ready.</p>}
             <Link className="notification-all" to="/basket?tab=orders" onClick={() => setPanel('')}>View all orders →</Link>
@@ -89,12 +99,12 @@ export default function CafeLayout({ title, children }) {
         </section>}
         {notice && <p className="header-notice" role="status">{notice}</p>}
       </header>
-      <main className="screen-content"><p className="catalog-demo-note">University project demo · Illustrative menus, prices and photos.</p>{children}</main>
+      <main className="screen-content">{children}</main>
       <DesktopBasket />
       <nav className="bottom-nav" aria-label="Main navigation">
-        {tabs.map(([path, label, icon, activeIcon]) => (
+        {tabs.map(([path, label, icon]) => (
           <NavLink key={path} to={path} end={path === '/'}>
-            {({ isActive }) => <><Icon file={isActive ? activeIcon : icon} /><span>{label}</span></>}
+            <img src={icon} alt="" /><span>{label}</span>
           </NavLink>
         ))}
       </nav>

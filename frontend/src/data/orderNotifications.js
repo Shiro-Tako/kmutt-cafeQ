@@ -1,9 +1,11 @@
-export function getOrderNotification(order, cafes) {
+export function getOrderNotification(order, cafes, menu = []) {
   if (!['Ready', 'Done'].includes(order.status)) return null;
   const ready = order.status === 'Ready';
   return {
     key: `${order.orderId}:${order.createdAt}:${order.status.toLowerCase()}`,
     orderId: order.orderId,
+    image: menu.find((item) => String(item.menuItemId) === String(order.items?.[0]?.menuItemId))?.image,
+    imageAlt: order.items?.[0]?.name ?? '',
     queueNumber: order.queueNumber,
     cafe: cafes.find((cafe) => cafe.cafeId === order.cafeId)?.name ?? `Café #${order.cafeId}`,
     pickupPoint: order.pickupPoint,

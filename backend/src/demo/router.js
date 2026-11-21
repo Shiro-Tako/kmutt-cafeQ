@@ -180,6 +180,47 @@ router.get('/auth/me', async (request, response) => {
   response.json(await transact((state) => publicUser(userFrom(state, request))));
 });
 
+router.patch('/auth/name', async (request, response) => {
+  response.json(await transact((state) => {
+    const user = userFrom(state, request);
+    const name = typeof request.body?.name === 'string' ? request.body.name.trim() : '';
+    if (!name || name.length > 80) {
+      fail(400, 'INVALID_NAME', 'Enter a name of up to 80 characters.');
+    }
+    user.name = name;
+    return { name: user.name };
+  }));
+});
+
+router.patch('/auth/photo', async (request, response) => {
+  response.json(await transact((state) => {
+    const user = userFrom(state, request);
+    const photo = request.body?.photo;
+    if (typeof photo !== 'string' || photo.length > 60000 || !/^data:image\/jpeg;base64,\/9j\/[A-Za-z0-9+/]+=*$/.test(photo)) {
+      fail(400, 'INVALID_PHOTO', 'Choose a valid profile photo.');
+    }
+    user.photo = photo;
+    return publicUser(user);
+  }));
+});
+
+router.patch('/auth/password', async (request, response) => {
+  await transact((state) => {
+    const user = userFrom(state, request);
+    const { currentPassword, newPassword } = request.body ?? {};
+    if (typeof currentPassword !== 'string' || currentPassword.length > 128 || !checkPassword(currentPassword, user.passwordHash)) {
+      fail(403, 'WRONG_PASSWORD', 'Your current password is incorrect.');
+    }
+    if (typeof newPassword !== 'string' || newPassword.length < 8 || newPassword.length > 128) {
+      fail(400, 'INVALID_PASSWORD', 'Use 8 to 128 characters for your new password.');
+    }
+    user.passwordHash = hashPassword(newPassword);
+    const currentSession = digest(cookie(request));
+    state.sessions = state.sessions.filter((entry) => entry.userId !== user.userId || entry.hash === currentSession);
+  });
+  response.sendStatus(204);
+});
+
 router.post('/auth/logout', async (request, response) => {
   await transact((state) => { state.sessions = state.sessions.filter((entry) => entry.hash !== digest(cookie(request) ?? '')); });
   response.clearCookie('cafeq_session', { path: '/api', sameSite: 'strict', httpOnly: true });

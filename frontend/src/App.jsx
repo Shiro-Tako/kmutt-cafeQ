@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link, Navigate, Route, Routes, useLocation, useParams } from 'react-router';
+import { Link, Navigate, Outlet, Route, Routes, useLocation, useParams } from 'react-router';
 import { initialOrders, menu as initialMenu } from './data/menu.js';
 import { MenuContext } from './data/MenuContext.jsx';
 import useStoredState from './hooks/useStoredState.js';
@@ -7,6 +7,7 @@ import { useCatalog } from './hooks/useCatalog.js';
 import { LoginPage, WelcomePage } from './pages/AccessPages.jsx';
 import { CafesPage, DrinkPage, FavoritesPage } from './pages/CatalogPages.jsx';
 import HomePage from './pages/HomePage.jsx';
+import ProfilePage from './pages/ProfilePage.jsx';
 import OnlinePaymentPage from './pages/OnlinePaymentPage.jsx';
 import { BasketPage, PaymentPage, StaffPage } from './pages/OrderPages.jsx';
 import { StaffLayout, StaffMenuPage } from './pages/StaffMenuPage.jsx';
@@ -50,7 +51,7 @@ export default function App() {
   }, [catalog.menu, catalog.loading, catalog.error, setBasket]);
   const [account, setAccount] = useState(null);
   const { pathname } = useLocation();
-  const orderNotifications = useOrderNotifications(account, catalog.cafes, sessionEnabled && !pathname.startsWith('/staff'));
+  const orderNotifications = useOrderNotifications(account, catalog.cafes, sessionEnabled && !pathname.startsWith('/staff'), catalog.menu);
   const [sessionLoading, setSessionLoading] = useState(sessionEnabled);
   const [selectedCafe, setSelectedCafe] = useState(null);
   const [favoriteError, setFavoriteError] = useState('');
@@ -167,16 +168,19 @@ export default function App() {
       <button aria-label="Dismiss order notification" onClick={orderNotifications.dismissToast}>×</button>
     </aside>}
     <Routes>
-      <Route path="/" element={<HomePage />} />
       <Route path="/welcome" element={<WelcomePage />} />
-      <Route path="/login" element={<LoginPage onAccount={setAccount} />} />
+      <Route path="/login" element={account ? <Navigate to="/" replace /> : <LoginPage onAccount={setAccount} />} />
       <Route path="/staff/login" element={<LoginPage key="staff" staff onAccount={setAccount} onStaffLogin={sessionEnabled ? setSelectedCafe : setStaffCafe} />} />
+      <Route element={sessionLoading ? <p role="status" className="auth-loading">Checking your session…</p> : account ? <Outlet /> : <Navigate to="/login" replace />}>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/profile" element={<ProfilePage account={account} onAccount={setAccount} />} />
       <Route path="/cafes" element={<CafesPage />} />
       <Route path="/drink/:id" element={<DrinkRoute favorites={activeFavorites} favoriteError={favoriteError} toggleFavorite={toggleFavorite} addToBasket={changeQuantity} />} />
       <Route path="/favorites" element={<FavoritesPage favorites={activeFavorites} loading={saved.loading} error={favoriteError || saved.error} toggleFavorite={toggleFavorite} />} />
       <Route path="/basket" element={<BasketPage basket={basket} orders={orders} account={account} changeQuantity={changeQuantity} clearCafe={clearCafe} />} />
       <Route path="/payment" element={<PaymentPage basket={basket} />} />
       <Route path="/payment/online" element={<OnlinePaymentPage basket={basket} placeOrder={placeOrder} clearCafe={clearCafe} account={account} />} />
+      </Route>
       <Route path="/staff" element={sessionLoading || (account?.staffCafeIds?.length && !staffStore && !catalog.error) ? <p role="status">Loading your store…</p> : activeStaffCafe ? <StaffLayout cafe={activeStaffCafe} onLogout={logout} /> : <Navigate to="/staff/login" replace />}>
         <Route index element={<Navigate to="orders" replace />} />
         <Route path="orders" element={<StaffPage cafe={activeStaffCafe} cafeId={staffStore?.cafeId} orders={orders} advanceOrder={advanceOrder} />} />

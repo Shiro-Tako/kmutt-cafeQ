@@ -1,23 +1,39 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, useParams } from 'react-router';
+import { Link, useParams, useSearchParams } from 'react-router';
 import CafeLayout, { asset, Icon } from '../components/layout/CafeLayout.jsx';
 import DrinkCard from '../components/common/DrinkCard.jsx';
 import { baht, categories, getCafe } from '../data/menu.js';
 import { useMenu } from '../data/MenuContext.jsx';
 import { fetchMenuItems, toMenuItem } from '../services/catalog.js';
 import { sessionEnabled } from '../services/auth.js';
+import coffeeIcon from '../assets/campus/nav-cafes.png';
+import storefrontIcon from '../assets/campus/nav-home.png';
+
+import teaIcon from '../assets/campus/tea.png';
+import snacksIcon from '../assets/campus/snacks.png';
+
+const categoryArt = {
+  Coffee: { image: coffeeIcon, label: 'Coffee' },
+  'Tea & More': { image: teaIcon, label: 'Tea' },
+  Snacks: { image: snacksIcon, label: 'Snacks' },
+};
 
 export function CafesPage() {
   const { menu, cafes, overrides, refresh: refreshCatalog } = useMenu();
-  const [category, setCategory] = useState(categories[0]);
-  const [query, setQuery] = useState('');
+  const [params, setParams] = useSearchParams();
+  const globalQuery = params.get('q') || '';
+  const [selectedCategory, setCategory] = useState(categories[0]);
+  const [localQuery, setQuery] = useState('');
+  const category = globalQuery ? '' : selectedCategory;
+  const query = globalQuery || localQuery;
+  const picker = useRef(null);
   const [cafeId, setCafeId] = useState('');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(true);
   const [request, setRequest] = useState(0);
   const cafe = cafes.find((entry) => String(entry.cafeId) === cafeId)?.name;
   const localItems = menu.filter((item) =>
-    !item.archived && item.category === category &&
+    !item.archived && (!category || item.category === category) &&
     (!cafeId || getCafe(item) === cafe) &&
     item.name.toLowerCase().includes(query.trim().toLowerCase()),
   );
@@ -52,26 +68,66 @@ export function CafesPage() {
   }
 
   return (
-    <CafeLayout title="Choose a café to start ordering">
-      <div className="cafe-filter">
-        <label htmlFor="cafe-filter">Café</label>
-        <select id="cafe-filter" value={cafeId} onChange={(event) => refresh(() => setCafeId(event.target.value))}>
-          <option value="">All cafés</option>
-          {cafes.map(({ cafeId: id, name }) => <option key={id} value={id}>{name}</option>)}
-        </select>
+    <CafeLayout pose="cafes" title="Choose a café to start ordering">
+      <div className="cafe-browse-controls">
+        <input className="search" type="search" aria-label="Search menu" placeholder="Search.." value={query} onChange={(event) => refresh(() => globalQuery ? setParams(event.target.value ? { q: event.target.value } : {}, { replace: true }) : setQuery(event.target.value))} />
+        <button className="cafe-picker-trigger" type="button" aria-haspopup="dialog"
+          onClick={() => picker.current.showModal()}>
+          <img src={storefrontIcon} width="46" height="46" alt="" />
+          <span className="pickup-selection"><small>Pickup café</small><strong>{cafe || 'All cafés'}</strong></span>
+          <span className="pickup-change">Change <i aria-hidden="true" /></span>
+        </button>
+        <dialog className="store-dialog" ref={picker} aria-labelledby="store-dialog-title"
+          onClick={(event) => { if (event.target === picker.current) picker.current.close(); }}>
+          <div className="store-dialog-body">
+            <header><h2 id="store-dialog-title">Choose a café</h2>
+              <button type="button" aria-label="Close café picker" onClick={() => picker.current.close()}>×</button>
+            </header>
+            {[{ cafeId: '', name: 'All cafés' }, ...cafes].map((store) => {
+              const id = String(store.cafeId);
+              return <button className="store-option" key={id} type="button" aria-pressed={cafeId === id}
+                onClick={() => {
+                  if (cafeId !== id) refresh(() => setCafeId(id));
+                  picker.current.close();
+                }}>
+                {store.name}{cafeId === id && <span aria-hidden="true">✓</span>}
+              </button>;
+            })}
+          </div>
+        </dialog>
+        <div className="cafe-categories" role="group" aria-label="Menu categories">
+          {categories.map((name) => {
+            const { image, label } = categoryArt[name];
+            return (
+              <button key={name} className="cafe-category" aria-pressed={name === category} onClick={() => {
+                if (name === category) return;
+                refresh(() => {
+                  if (globalQuery) setParams({});
+                  setCategory(name);
+                });
+              }}>
+                <img src={image} alt="" />
+                <span>{label}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
-      <input className="search" type="search" aria-label="Search menu" placeholder="Search.." value={query} onChange={(event) => refresh(() => setQuery(event.target.value))} />
-      <div className="segments category-tabs" aria-label="Menu categories">
-        {categories.map((name) => <button key={name} aria-pressed={name === category} onClick={() => { if (name !== category) refresh(() => setCategory(name)); }}>{name}</button>)}
+      <div className="cafe-results-heading">
+        <h2 id="cafe-results-title">{globalQuery ? `Results for “${globalQuery}”` : categoryArt[category].label}</h2>
+        {!loading && <span>{items.length} {items.length === 1 ? 'item' : 'items'}</span>}
       </div>
-      <section className="catalog-list" aria-label={category} aria-busy={loading}>
+      <section className="catalog-list" aria-labelledby="cafe-results-title" aria-busy={loading}>
+
         {loading && <p role="status">Loading menu…</p>}
         {!loading && result === null && <p role="status">{sessionEnabled ? 'Live menu search is unavailable.' : 'Using the demo menu.'} <button className="edit-order" onClick={() => refresh(() => { refreshCatalog(); setRequest(request + 1); })}>Retry API</button></p>}
         {!loading && items.map((item) => (
           <article key={item.id} className="menu-item">
             <Link className="menu-item-info" to={`/drink/${item.id}`}>
-              <span className="menu-photo">{item.image && <img src={asset(item.image)} alt="" />}</span>
-              <span className="menu-item-copy"><strong>{item.name}</strong><small>{getCafe(item)}</small><span>{item.description}</span><b>{baht(item.price)}</b></span>
+              <span className="menu-photo">
+                <img src={item.image ? asset(item.image) : coffeeIcon} className={item.image ? undefined : 'menu-photo-placeholder'} alt="" loading="lazy" />
+              </span>
+              <span className="menu-item-copy"><strong>{item.name}</strong><small>{getCafe(item)}</small><b>{baht(item.price)}</b></span>
             </Link>
             <Link className="square-button" to={`/drink/${item.id}`} aria-label={`Choose ${item.name}`}>+</Link>
           </article>
@@ -86,7 +142,7 @@ export function FavoritesPage({ favorites, loading, error, toggleFavorite }) {
   const { menu, loading: catalogLoading, error: catalogError } = useMenu();
   const items = menu.filter((item) => !item.archived && favorites.includes(item.id));
   return (
-    <CafeLayout title="Your saved items across campus cafés">
+    <CafeLayout pose="favorites" title="Your saved items across campus cafés">
       <div className="favorites-grid">
         {items.map((item) => <DrinkCard key={item.id} item={item} onRemove={() => toggleFavorite(item.id)} />)}
       </div>
@@ -109,7 +165,7 @@ export function DrinkPage({ favorites, favoriteError, toggleFavorite, addToBaske
   if (error && !item) return <main className="missing"><p role="alert">{error}</p><button onClick={refresh}>Retry</button></main>;
   if (!item || item.archived) return <main className="missing"><h1>Menu item unavailable</h1><Link to="/cafes">Back to cafés</Link></main>;
 
-  const image = id === 'sweet-heaven' && item.image?.endsWith('e532a.png') ? '6310f.png' : item.image;
+  const image = item.image;
   const isFavorite = favorites.includes(id);
 
   function handleAdd() {

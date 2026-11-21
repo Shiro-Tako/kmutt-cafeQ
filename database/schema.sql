@@ -10,6 +10,10 @@ CREATE TABLE IF NOT EXISTS cafe_staff (
  user_id INT NOT NULL, cafe_id INT NOT NULL, PRIMARY KEY (user_id,cafe_id),
  FOREIGN KEY (user_id) REFERENCES users(id), FOREIGN KEY (cafe_id) REFERENCES cafes(id)
 );
+CREATE TABLE IF NOT EXISTS profile_photos (
+ user_id INT PRIMARY KEY, photo TEXT NOT NULL,
+ FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
 CREATE TABLE IF NOT EXISTS cafe_owners (
  cafe_id INT PRIMARY KEY, user_id INT NOT NULL,
  FOREIGN KEY (cafe_id) REFERENCES cafes(id), FOREIGN KEY (user_id) REFERENCES users(id)

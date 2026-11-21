@@ -17,6 +17,7 @@ export const tables = [
   ['OrderDetail', ['order_id', 'menu_id', 'name', 'price', 'quantity']],
   ['Queue', ['queue_id', 'order_id', 'cafe_id', 'queue_number', 'queue_date', 'status']],
   ['cafe_owners', ['cafe_id', 'user_id']],
+  ['profile_photos', ['user_id', 'photo']],
 ];
 
 export function rowsFrom(state) {
@@ -37,6 +38,7 @@ export function rowsFrom(state) {
     state.orders.flatMap((order) => order.items.map((r) => [order.orderId, r.menuItemId, r.name, r.unitPrice, r.quantity])),
     state.orders.map((r) => [r.orderId, r.orderId, r.cafeId, r.queueNumber, r.queueDate, r.status]),
     state.cafes.filter((r) => r.ownerUserId).map((r) => [r.cafeId, r.ownerUserId]),
+    state.users.filter((user) => user.photo).map((user) => [user.userId, user.photo]),
   ];
 }
 
@@ -51,6 +53,7 @@ async function load(connection) {
     cafes: cafes.map((r) => ({ cafeId: r.id, name: r.name, pickupPoint: r.pickup_point, ownerUserId: data[15].find((entry) => entry.cafe_id === r.id)?.user_id })),
     users: users.map((r) => ({
       userId: r.id, name: r.name, email: r.email, passwordHash: r.password_hash,
+      photo: data[16].find((entry) => entry.user_id === r.id)?.photo ?? null,
       phone: customers.find((entry) => entry.customer_id === r.id)?.phone ?? null,
       role: staffAccounts.find((entry) => entry.staff_id === r.id)?.role ?? 'customer',
       staffCafeIds: staff.filter((s) => s.user_id === r.id).map((s) => s.cafe_id),
