@@ -1,6 +1,6 @@
 import { pool } from '../config/database.js';
 
-const tables = [
+export const tables = [
   ['cafes', ['id', 'name', 'pickup_point']],
   ['users', ['id', 'name', 'email', 'password_hash']],
   ['cafe_staff', ['user_id', 'cafe_id']],
@@ -19,7 +19,7 @@ const tables = [
   ['cafe_owners', ['cafe_id', 'user_id']],
 ];
 
-function rowsFrom(state) {
+export function rowsFrom(state) {
   return [
     state.cafes.map((r) => [r.cafeId, r.name, r.pickupPoint]),
     state.users.map((r) => [r.userId, r.name, r.email, r.passwordHash]),

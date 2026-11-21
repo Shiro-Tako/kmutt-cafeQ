@@ -102,5 +102,6 @@ Browser → `/api` → Express → MySQL ในโหมด laptop หรือ 
 - [เปิดเซิร์ฟเวอร์ MySQL และ tunnel](docs/laptop-server.md)
 - [โครงสร้างฐานข้อมูลตาม presentation](docs/presentation-schema.md)
 - [สมัครร้านและเพิ่มบัญชีพนักงานหลายคน](docs/store-team.md)
+- [ร้าน KMUTT 5 ร้าน เมนูเดโม 50 รายการ และการสำรอง/ล้างข้อมูล](docs/kmutt-catalog.md)
 - [แบ่งงานทีม](docs/team-plan.md)
 - [API contract](docs/api-contract.md), [database contract](docs/database-contract.md), [backend handoff](docs/backend-handoff.md): ข้อตกลงประสานงานทีม ควรตรวจเทียบกับเดโมก่อนเชื่อม branch ของสมาชิก

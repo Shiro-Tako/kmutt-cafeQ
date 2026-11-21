@@ -33,6 +33,10 @@ async function read() {
 
 export async function createInitialState() {
     const password = process.env.DEMO_SEED_PASSWORD || 'CafeQ123!';
+    if (process.env.DEMO_CATALOG === 'kmutt') {
+      const { createCampusState } = await import('./campusSeed.js');
+      return createCampusState(password);
+    }
     return {
       cafes: (await listCafes()).map((cafe) => ({ ...cafe, ownerUserId: cafe.cafeId === 1 ? 202 : 203 })),
       menu: await listMenuItems({}),

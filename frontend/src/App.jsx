@@ -37,6 +37,16 @@ export default function App() {
   const [staffCafe, setStaffCafe] = useStoredState('cafeq-staff-cafe', '');
   const catalog = useCatalog(menu);
   const { getItem } = catalog;
+  useEffect(() => {
+    if (catalog.loading || catalog.error) return;
+    setBasket((current) => {
+      const entries = Object.entries(current).filter(([id]) => {
+        const item = catalog.getItem(id);
+        return item && !item.archived;
+      });
+      return entries.length === Object.keys(current).length ? current : Object.fromEntries(entries);
+    });
+  }, [catalog.menu, catalog.loading, catalog.error, setBasket]);
   const [account, setAccount] = useState(null);
   const [sessionLoading, setSessionLoading] = useState(sessionEnabled);
   const [selectedCafe, setSelectedCafe] = useState(null);

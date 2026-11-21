@@ -117,7 +117,7 @@ try {
   await connection.end();
   connection = null;
   const env = {
-    ...process.env, DATA_STORE: 'mysql', CATALOG_SOURCE: 'demo',
+    ...process.env, DATA_STORE: 'mysql', CATALOG_SOURCE: 'demo', DEMO_CATALOG: 'kmutt',
     DB_HOST: '127.0.0.1', DB_PORT: String(config.dbPort),
     DB_USER: 'cafeq', DB_PASSWORD: config.dbPassword, DB_NAME: 'kmutt_cafeq',
     PORT: String(config.appPort), DEMO_SEED_PASSWORD: config.accountPassword, PUBLIC_HTTPS: String(online),

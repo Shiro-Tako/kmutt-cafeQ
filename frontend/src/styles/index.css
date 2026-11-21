@@ -410,3 +410,4 @@ h1, h2, .feature strong, .menu-item-copy strong, .drink-card strong { font-famil
 .team-form { border-radius: 14px; padding: 20px; max-width: 580px; }
 .team-form input { min-height: 42px; }
 .team-form .primary { min-height: 44px; }
+.catalog-demo-note { font-size: 10px; line-height: 1.5; color: var(--muted); margin: 2px 0 14px; }

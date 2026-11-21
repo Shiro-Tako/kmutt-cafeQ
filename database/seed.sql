@@ -1,2 +1,5 @@
--- Add development sample data after the schema is approved.
--- Run this file after schema.sql once both contain SQL statements.
+-- The laptop demo catalog is maintained in kmutt-catalog.json (5 stores, 50 items).
+-- A fresh laptop database is seeded by backend/src/demo/campusSeed.js.
+-- Normal restarts preserve existing data. This file intentionally does not reset data.
+-- For an explicit backed-up reset, see docs/kmutt-catalog.md and
+-- scripts/reset-campus-data.mjs --keep-real-accounts --confirm-reset.

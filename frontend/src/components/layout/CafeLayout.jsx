@@ -77,7 +77,7 @@ export default function CafeLayout({ title, children }) {
         {panel === 'notifications' && <p className="header-notice" role="status">Check My Order for pickup updates.</p>}
         {notice && <p className="header-notice" role="status">{notice}</p>}
       </header>
-      <main className="screen-content">{children}</main>
+      <main className="screen-content"><p className="catalog-demo-note">University project demo · Illustrative menus, prices and photos.</p>{children}</main>
       <DesktopBasket />
       <nav className="bottom-nav" aria-label="Main navigation">
         {tabs.map(([path, label, icon, activeIcon]) => (
