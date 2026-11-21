@@ -450,3 +450,4 @@ h1, h2, .feature strong, .menu-item-copy strong, .drink-card strong { font-famil
 .notification-bell { border: 2px solid transparent; border-radius: 50%; }
 .notification-bell.has-unread { border-color: #dc2626; background: #fff0ed; color: #c81e1e; box-shadow: 0 0 0 3px #dc26261a; }
 .notification-count { background: #dc2626; }
+.checkout-back { display: inline-flex; align-items: center; min-height: 44px; margin: 10px var(--gutter) 4px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--accent-text); font-size: 13px; font-weight: 600; }

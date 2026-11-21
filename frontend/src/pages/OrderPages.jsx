@@ -141,6 +141,7 @@ export function PaymentPage({ basket }) {
   const recommendations = ['coffee-lemonade', 'lemonade'].map(getItem).filter(Boolean);
   return (
     <main className="payment-screen">
+      <Link className="checkout-back" to="/basket">← Back to basket</Link>
       <section className="payment-section pickup-section">
         <h1><Icon file="7a138.svg" /> Pickup at</h1>
         <p>{cafe}</p><p>KMUTT Thonburi campus</p>
