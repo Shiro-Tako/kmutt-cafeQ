@@ -10,7 +10,7 @@ export function getOrderNotification(order, cafes, menu = []) {
     cafe: cafes.find((cafe) => cafe.cafeId === order.cafeId)?.name ?? `Café #${order.cafeId}`,
     pickupPoint: order.pickupPoint,
     title: ready ? 'Your order is ready!' : 'Your order is completed!',
-    detail: ready ? 'Ready for pickup' : 'Marked Done by the café',
+    detail: ready ? 'Ready for pickup' : 'Pickup completed',
     linkLabel: ready ? 'View pickup details →' : 'View order details →',
     status: order.status,
   };

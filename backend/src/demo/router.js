@@ -289,13 +289,25 @@ router.get('/orders', async (request, response) => {
   }) });
 });
 
-router.get('/orders/:id', async (request, response) => {
-  const order = await transact((state) => {
-    const user = userFrom(state, request);
-    return state.orders.find((entry) => entry.orderId === Number(request.params.id) && entry.userId === user.userId);
-  });
+function customerOrder(state, request) {
+  const user = userFrom(state, request);
+  const order = state.orders.find((entry) => entry.orderId === Number(request.params.id) && entry.userId === user.userId);
   if (!order) fail(404, 'ORDER_NOT_FOUND', 'Order not found.');
-  response.json(order);
+  return order;
+}
+
+router.get('/orders/:id', async (request, response) => {
+  response.json(await transact((state) => customerOrder(state, request)));
+});
+
+router.patch('/orders/:id/pickup', async (request, response) => {
+  response.json(await transact((state) => {
+    const order = customerOrder(state, request);
+    if (order.status === 'Done') return order;
+    if (order.status !== 'Ready') fail(409, 'ORDER_NOT_READY', 'The café needs to mark this order ready first.');
+    order.status = 'Done';
+    return order;
+  }));
 });
 
 router.get('/staff/cafes/:cafeId/orders', async (request, response) => {

@@ -7,7 +7,7 @@ import { baht, menu as initialMenu } from '../data/menu.js';
 import { useMenu } from '../data/MenuContext.jsx';
 import { useApiResource } from '../hooks/useApiResource.js';
 import { sessionEnabled } from '../services/auth.js';
-import { getOrders, getStaffOrders, toDisplayOrder, updateOrderStatus } from '../services/orders.js';
+import { confirmPickup, getOrders, getStaffOrders, toDisplayOrder, updateOrderStatus } from '../services/orders.js';
 
 export function total(items, getItem) {
   return Object.entries(items).reduce((sum, [id, count]) => sum + getItem(id).price * count, 0);
@@ -37,9 +37,10 @@ export function getCheckout(basket, requestedCafe, pickupOption, getItem, cafes)
 }
 
 export function BasketPage({ basket, orders, account, changeQuantity, clearCafe }) {
-  const { getItem, cafes, loading: catalogLoading, error: catalogError } = useMenu();
+  const { getItem, cafes, orderNotifications, loading: catalogLoading, error: catalogError } = useMenu();
   const [params, setParams] = useSearchParams();
   const [expanded, setExpanded] = useState(null);
+  const [pickup, setPickup] = useState(null);
   useEffect(() => {
     const orderId = params.get('order');
     if (orderId && /^\d+$/.test(orderId)) setExpanded(Number(orderId));
@@ -48,6 +49,19 @@ export function BasketPage({ basket, orders, account, changeQuantity, clearCafe 
   const loadOrders = useCallback((signal) => account ? getOrders(signal) : null, [account]);
   const history = useApiResource(loadOrders, sessionEnabled && showOrders && Boolean(account), 5000);
   const myOrders = sessionEnabled ? (history.data?.items ?? []).map((order) => toDisplayOrder(order, cafes)) : orders.filter((order) => order.customer === 'Somchai P.');
+
+  async function acceptPickup(id) {
+    setPickup({ id, pending: true });
+    try {
+      await confirmPickup(id);
+      history.refresh();
+      orderNotifications.refresh();
+      setPickup({ id, confirmed: true });
+    } catch (error) {
+      setPickup({ id, error: error.message });
+    }
+  }
+
   return (
     <CafeLayout pose="orders" title={showOrders ? "Your orders" : "Your basket"}>
       <div className="segments basket-tabs">
@@ -56,6 +70,7 @@ export function BasketPage({ basket, orders, account, changeQuantity, clearCafe 
       </div>
       {showOrders ? (
         <div className="order-list">
+          {pickup?.confirmed && <p role="status">Pickup confirmed.</p>}
           {sessionEnabled && !account && <Link to="/login">Log in to see your orders</Link>}
           {history.loading && <p role="status">Loading orders…</p>}
           {history.error && <p role="alert">{history.error}</p>}
@@ -82,6 +97,10 @@ export function BasketPage({ basket, orders, account, changeQuantity, clearCafe 
                       {lines.map(({ id, name, quantity }) => <li key={id}>{quantity}× {name}</li>)}
                       <li>Total {baht(orderTotal(order))}</li>
                     </ul>
+                    {order.status === 'Ready' && <button type="button" className="primary" disabled={pickup?.pending} onClick={() => acceptPickup(order.id)}>
+                      {pickup?.id === order.id && pickup.pending ? 'Confirming…' : 'Confirm pickup'}
+                    </button>}
+                    {pickup?.id === order.id && pickup.error && <p role="alert">{pickup.error}</p>}
                     <h3>Pickup location</h3>
                     <PickupMap cafeName={order.cafe} pickupPoint={order.pickupPoint ?? order.pickup ?? cafes.find((store) => store.name === order.cafe)?.pickupPoint} />
                   </div>

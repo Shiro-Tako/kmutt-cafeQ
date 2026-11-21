@@ -98,9 +98,20 @@ test('demo persists orders and rejects duplicate, stale and cross-store operatio
     assert.equal((await request('/checkout/quote', 'POST', { cafeId: 1, items: [{ menuItemId: 101, quantity: 0 }] }, customer)).status, 400);
     const statusPath = '/staff/cafes/1/orders/' + order.orderId + '/status';
     assert.equal((await request(statusPath, 'PATCH', { status: 'Done' }, staff)).status, 409);
-    for (const status of ['Preparing', 'Ready', 'Done']) {
+    const pickupPath = '/orders/' + order.orderId + '/pickup';
+    assert.equal((await request(pickupPath, 'PATCH', undefined, customer)).status, 409);
+    assert.equal((await request(pickupPath, 'PATCH')).status, 401);
+    for (const status of ['Preparing', 'Ready']) {
       assert.equal((await request(statusPath, 'PATCH', { status }, staff)).status, 200);
     }
+    assert.equal((await request(pickupPath, 'PATCH', undefined, otherStaff)).status, 404);
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const pickedUp = await request(pickupPath, 'PATCH', undefined, customer);
+      assert.equal(pickedUp.status, 200);
+      assert.equal((await pickedUp.json()).status, 'Done');
+    }
+    const shopOrder = await (await request('/staff/cafes/1/orders?status=Done', 'GET', undefined, staff)).json();
+    assert.equal(shopOrder.items[0].orderId, order.orderId);
     assert.equal((await request(statusPath, 'PATCH', {}, staff)).status, 409);
     await request('/staff/cafes/1/menu-items/101', 'PATCH', { price: 9900 }, staff);
     await stop();
@@ -111,6 +122,7 @@ test('demo persists orders and rejects duplicate, stale and cross-store operatio
     const history = await (await request('/orders', 'GET', undefined, customer)).json();
     assert.equal(history.items.length, 1);
     assert.equal(history.items[0].total, 11500);
+    assert.equal(history.items[0].status, 'Done');
     assert.equal(history.items[0].items[0].unitPrice, 5500);
     assert.equal((await request('/checkout/confirm', 'POST', body, customer)).status, 200);
     assert.equal((await request('/checkout/confirm', 'POST', { ...body, confirmationId: randomUUID() }, customer)).status, 409);

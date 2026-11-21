@@ -4,6 +4,7 @@ import { demoItemIds } from './catalog.js';
 export const quoteOrder = (body, signal) => requestJson('/checkout/quote', { method: 'POST', body, signal });
 export const confirmOrder = (body) => requestJson('/checkout/confirm', { method: 'POST', body });
 export const getOrders = (signal) => requestJson('/orders', { signal });
+export const confirmPickup = (id) => requestJson(`/orders/${id}/pickup`, { method: 'PATCH' });
 export const getStaffOrders = (cafeId, signal) => requestJson(`/staff/cafes/${cafeId}/orders`, { signal });
 export const updateOrderStatus = (cafeId, id, status) =>
   requestJson(`/staff/cafes/${cafeId}/orders/${id}/status`, { method: 'PATCH', body: { status } });
