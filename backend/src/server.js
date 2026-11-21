@@ -19,8 +19,10 @@ app.use('/api', createCatalogRouter(requireDemoStaff));
 app.use('/api', (_request, response) => response.status(404).json({ error: { code: 'NOT_FOUND', message: 'API route not found.' } }));
 const frontend = fileURLToPath(new URL('../../frontend/dist/', import.meta.url));
 if (existsSync(frontend)) {
-  app.use(express.static(frontend));
-  app.get('/{*path}', (_request, response) => response.sendFile(frontend + 'index.html'));
+  app.use(express.static(frontend, { setHeaders(response, path) {
+    if (path.endsWith('index.html')) response.setHeader('Cache-Control', 'no-store');
+  } }));
+  app.get('/{*path}', (_request, response) => response.set('Cache-Control', 'no-store').sendFile(frontend + 'index.html'));
 }
 app.use((error, _request, response, _next) => {
   response.status(error.status ?? 500).json({

@@ -42,12 +42,13 @@ function DesktopBasket() {
 }
 
 export default function CafeLayout({ title, children }) {
-  const { account, logout, viewMode, setViewMode } = useMenu();
+  const { account, logout, viewMode, setViewMode, orderNotifications } = useMenu();
   const navigate = useNavigate();
   const [panel, setPanel] = useState('');
   const [notice, setNotice] = useState('');
   const toggle = (name) => {
     setNotice('');
+    if (name === 'notifications' && panel !== 'notifications') orderNotifications.markRead();
     setPanel((current) => current === name ? '' : name);
   };
 
@@ -61,7 +62,7 @@ export default function CafeLayout({ title, children }) {
       <header className="screen-header">
         <h1>{title}</h1>
         <div className="header-actions">
-          <button aria-label="Notifications" aria-expanded={panel === 'notifications'} onClick={() => toggle('notifications')}><Icon file="64b09.svg" /></button>
+          <button className={`notification-bell${orderNotifications.unreadCount ? ' has-unread' : ''}`} aria-label={`Notifications${orderNotifications.unreadCount ? ` (${orderNotifications.unreadCount} unread)` : ''}`} aria-expanded={panel === 'notifications'} aria-controls="order-notification-panel" onClick={() => toggle('notifications')}><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a1 1 0 0 0-1 1v1.08A6 6 0 0 0 6 10v5l-2 3v1h16v-1l-2-3v-5a6 6 0 0 0-5-5.92V3a1 1 0 0 0-1-1Zm-2 18a2 2 0 0 0 4 0Z" /></svg>{orderNotifications.unreadCount > 0 && <span className="notification-count" aria-hidden="true">{orderNotifications.unreadCount > 99 ? '99+' : orderNotifications.unreadCount}</span>}</button>
           <button aria-label="Menu" aria-expanded={panel === 'menu'} onClick={() => toggle('menu')}><Icon file="63585.svg" /></button>
         </div>
         {panel === 'menu' && (
@@ -74,7 +75,18 @@ export default function CafeLayout({ title, children }) {
             }}><Icon file="dc0aa.svg" />Logout</button> : <Link to="/login"><Icon file="dc0aa.svg" />{sessionEnabled ? 'Log in' : 'Logout'}</Link>}
           </div>
         )}
-        {panel === 'notifications' && <p className="header-notice" role="status">Check My Order for pickup updates.</p>}
+        {panel === 'notifications' && <section className="notification-panel" id="order-notification-panel" aria-label="Pickup notifications">
+          <h2>Notifications</h2>
+          {!account ? <p><Link to="/login">Log in for order updates</Link></p> : <>
+            {orderNotifications.loading && <p role="status">Checking your orders…</p>}
+            {orderNotifications.error && <p role="alert">Could not check order updates. <button onClick={orderNotifications.refresh}>Retry</button></p>}
+            {orderNotifications.items.map((item) => <Link className="ready-notification" key={item.key} to={`/basket?tab=orders&order=${item.orderId}`} onClick={() => { orderNotifications.markRead([item.key]); setPanel(''); }}>
+              <strong>{item.title}</strong><span>{item.cafe}</span><small>{item.queueNumber ? `Queue #${String(item.queueNumber).padStart(3, '0')}` : `Order #${item.orderId}`} · {item.detail}</small>
+            </Link>)}
+            {!orderNotifications.loading && !orderNotifications.error && orderNotifications.items.length === 0 && <p>No pickup notifications yet. We’ll let you know when your order is ready.</p>}
+            <Link className="notification-all" to="/basket?tab=orders" onClick={() => setPanel('')}>View all orders →</Link>
+          </>}
+        </section>}
         {notice && <p className="header-notice" role="status">{notice}</p>}
       </header>
       <main className="screen-content"><p className="catalog-demo-note">University project demo · Illustrative menus, prices and photos.</p>{children}</main>

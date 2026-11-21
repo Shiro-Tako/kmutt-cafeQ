@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link, Navigate, Route, Routes, useParams } from 'react-router';
+import { Link, Navigate, Route, Routes, useLocation, useParams } from 'react-router';
 import { initialOrders, menu as initialMenu } from './data/menu.js';
 import { MenuContext } from './data/MenuContext.jsx';
 import useStoredState from './hooks/useStoredState.js';
@@ -15,6 +15,7 @@ import { getSession, sessionEnabled, signOut } from './services/auth.js';
 import { demoItemIds, writeMenuItem } from './services/catalog.js';
 import { getFavorites, saveFavorite } from './services/favorites.js';
 import { useApiResource } from './hooks/useApiResource.js';
+import useOrderNotifications from './hooks/useOrderNotifications.js';
 
 function DrinkRoute(props) {
   const { id } = useParams();
@@ -48,6 +49,8 @@ export default function App() {
     });
   }, [catalog.menu, catalog.loading, catalog.error, setBasket]);
   const [account, setAccount] = useState(null);
+  const { pathname } = useLocation();
+  const orderNotifications = useOrderNotifications(account, catalog.cafes, sessionEnabled && !pathname.startsWith('/staff'));
   const [sessionLoading, setSessionLoading] = useState(sessionEnabled);
   const [selectedCafe, setSelectedCafe] = useState(null);
   const [favoriteError, setFavoriteError] = useState('');
@@ -156,8 +159,13 @@ export default function App() {
   }
 
   return (
-    <MenuContext.Provider value={{ ...catalog, account, logout, staffStore, allowedCafes, selectStaffCafe: setSelectedCafe, viewMode, setViewMode, basket, changeQuantity }}>
+    <MenuContext.Provider value={{ ...catalog, account, logout, staffStore, allowedCafes, selectStaffCafe: setSelectedCafe, viewMode, setViewMode, basket, changeQuantity, orderNotifications }}>
     <div className={wideScreen && viewMode !== 'mobile' ? 'desktop-view' : 'mobile-view'}>
+    {orderNotifications.toast && <aside className="ready-toast" role="status" aria-live="polite">
+      <div><strong>{orderNotifications.toast.title}</strong><p>{orderNotifications.toast.cafe}{orderNotifications.toast.queueNumber ? ` · Queue #${String(orderNotifications.toast.queueNumber).padStart(3, '0')}` : ''}</p>
+      <Link to={`/basket?tab=orders&order=${orderNotifications.toast.orderId}`} onClick={() => orderNotifications.markRead([orderNotifications.toast.key])}>{orderNotifications.toast.linkLabel}</Link></div>
+      <button aria-label="Dismiss order notification" onClick={orderNotifications.dismissToast}>×</button>
+    </aside>}
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/welcome" element={<WelcomePage />} />

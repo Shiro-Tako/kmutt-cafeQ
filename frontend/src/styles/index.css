@@ -427,3 +427,26 @@ h1, h2, .feature strong, .menu-item-copy strong, .drink-card strong { font-famil
 @media (min-width: 1000px) {
   .desktop-view .pickup-map iframe { height: 300px; }
 }
+.notification-bell { position: relative; color: var(--accent-text); }
+.notification-bell svg { width: 26px; height: 29px; }
+.notification-count { position: absolute; top: 0; right: -3px; min-width: 19px; height: 19px; padding-inline: 4px; display: grid; place-items: center; border: 2px solid var(--canvas); border-radius: 99px; background: #a43218; color: white; font-size: 10px; font-weight: 750; animation: notification-pop 240ms ease-out; }
+.notification-panel { position: absolute; z-index: 6; top: 65px; right: var(--gutter); width: min(330px, calc(100vw - 40px)); max-height: min(520px, 70dvh); overflow-y: auto; padding: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 12px 30px #36231d26; }
+.notification-panel h2 { font-size: 18px; margin-bottom: 12px; }
+.notification-panel > p { font-size: 13px; line-height: 1.6; }
+.ready-notification { display: grid; gap: 6px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.ready-notification strong { color: #783515; font-size: 14px; }
+.ready-notification span { font-size: 13px; }
+.ready-notification small { color: var(--muted); font-size: 11px; }
+.notification-all { display: block; padding-top: 14px; font-size: 13px; text-decoration: underline; }
+.ready-toast { position: fixed; z-index: 20; top: max(14px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); width: min(390px, calc(100% - 28px)); display: flex; align-items: flex-start; gap: 8px; background: #fffaf5; border: 1px solid #d6792c; border-left: 5px solid #d6792c; border-radius: 14px; padding: 16px; box-shadow: 0 8px 28px #36231d35; animation: ready-toast-in 220ms ease-out; }
+.ready-toast > div { flex: 1; min-width: 0; }
+.ready-toast strong { font-size: 16px; color: #783515; }
+.ready-toast p { font-size: 12px; line-height: 1.5; margin: 5px 0 10px; }
+.ready-toast a { font-size: 13px; font-weight: 650; text-decoration: underline; }
+.ready-toast button { min-width: 36px; min-height: 36px; font-size: 24px; }
+@keyframes notification-pop { from { scale: .65; } to { scale: 1; } }
+@keyframes ready-toast-in { from { opacity: 0; translate: 0 -10px; } to { opacity: 1; translate: 0 0; } }
+@media (prefers-reduced-motion: reduce) { .notification-count, .ready-toast { animation: none; } }
+.notification-bell { border: 2px solid transparent; border-radius: 50%; }
+.notification-bell.has-unread { border-color: #dc2626; background: #fff0ed; color: #c81e1e; box-shadow: 0 0 0 3px #dc26261a; }
+.notification-count { background: #dc2626; }

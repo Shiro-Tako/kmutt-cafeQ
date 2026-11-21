@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import CafeLayout, { asset, Icon } from '../components/layout/CafeLayout.jsx';
 import DrinkCard from '../components/common/DrinkCard.jsx';
@@ -40,6 +40,10 @@ export function BasketPage({ basket, orders, account, changeQuantity, clearCafe 
   const { getItem, cafes, loading: catalogLoading, error: catalogError } = useMenu();
   const [params, setParams] = useSearchParams();
   const [expanded, setExpanded] = useState(null);
+  useEffect(() => {
+    const orderId = params.get('order');
+    if (orderId && /^\d+$/.test(orderId)) setExpanded(Number(orderId));
+  }, [params]);
   const showOrders = params.get('tab') === 'orders';
   const loadOrders = useCallback((signal) => account ? getOrders(signal) : null, [account]);
   const history = useApiResource(loadOrders, sessionEnabled && showOrders && Boolean(account), 5000);
