@@ -6,6 +6,8 @@ import { createCatalogRouter } from './routes/catalog.js';
 import { createAuthRouter } from './routes/auth.js';
 import { createFavoritesRouter } from './routes/favorites.js';
 import { requireStaffCafe } from './middleware/auth.js';
+import { requireSession } from './middleware/auth.js';
+import { createOrdersRouter } from './routes/orders.js';
 
 const app = express();
 const port = Number(process.env.PORT || 3000);
@@ -20,6 +22,12 @@ app.use('/api', healthRoutes);
 app.use('/api', createAuthRouter());
 app.use('/api', createFavoritesRouter());
 app.use('/api', createCatalogRouter(requireStaffCafe));
+app.use('/api', createOrdersRouter({ requireSession, requireStaffCafe }));
+
+app.use((error, _request, response, _next) => {
+  console.error('Unhandled API error:', error);
+  response.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'An unexpected error occurred.' } });
+});
 
 app.listen(port, host, () => {
   console.log(`API listening at http://${host}:${port}`);
