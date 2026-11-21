@@ -411,3 +411,19 @@ h1, h2, .feature strong, .menu-item-copy strong, .drink-card strong { font-famil
 .team-form input { min-height: 42px; }
 .team-form .primary { min-height: 44px; }
 .catalog-demo-note { font-size: 10px; line-height: 1.5; color: var(--muted); margin: 2px 0 14px; }
+.pickup-map { margin-top: 18px; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--surface); }
+.pickup-map-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px; padding: 12px; }
+.pickup-map-heading strong { font-size: 13px; }
+.pickup-map-heading span { font-size: 10px; color: var(--muted); }
+.pickup-map iframe { display: block; width: 100%; height: 230px; border: 0; background: #eee0d5; }
+.pickup-map > p { font-size: 12px; line-height: 1.5; padding: 10px 12px 0; margin: 0; overflow-wrap: anywhere; }
+.pickup-map > small { display: block; padding: 8px 12px; color: var(--muted); line-height: 1.5; font-size: 11px; }
+.pickup-map-links { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding: 8px 12px; font-size: 12px; }
+.pickup-map-links .primary { min-height: 44px; }
+.pickup-map-links > a:last-child { text-decoration: underline; padding-block: 8px; }
+.expanded-order-details { grid-column: 1 / -1; min-width: 0; border-top: 1px solid var(--line); padding-top: 10px; }
+.expanded-order-details > h3 { margin-top: 16px; font-size: 14px; }
+.expanded-order-details .history-details { line-height: 1.8; }
+@media (min-width: 1000px) {
+  .desktop-view .pickup-map iframe { height: 300px; }
+}

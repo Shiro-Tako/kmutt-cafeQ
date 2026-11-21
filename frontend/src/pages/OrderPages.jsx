@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import CafeLayout, { asset, Icon } from '../components/layout/CafeLayout.jsx';
 import DrinkCard from '../components/common/DrinkCard.jsx';
+import PickupMap from '../components/common/PickupMap.jsx';
 import { baht, menu as initialMenu } from '../data/menu.js';
 import { useMenu } from '../data/MenuContext.jsx';
 import { useApiResource } from '../hooks/useApiResource.js';
@@ -67,16 +68,20 @@ export function BasketPage({ basket, orders, account, changeQuantity, clearCafe 
                   <p>{first?.quantity}x　<strong>{first?.name}</strong></p>
                   {order.queueNumber && <p>Queue #{String(order.queueNumber).padStart(3, '0')}</p>}
                   <div className="spread history-footer">
-                    <button aria-expanded={expanded === order.id} onClick={() => setExpanded(expanded === order.id ? null : order.id)}>Details</button>
+                    <button aria-expanded={expanded === order.id} aria-controls={`order-details-${order.id}`} onClick={() => setExpanded(expanded === order.id ? null : order.id)}>Details</button>
                     <strong className="order-status">{order.status}</strong>
                   </div>
-                  {expanded === order.id && (
+                </div>
+                {expanded === order.id && (
+                  <div className="expanded-order-details" id={`order-details-${order.id}`}>
                     <ul className="history-details">
                       {lines.map(({ id, name, quantity }) => <li key={id}>{quantity}× {name}</li>)}
                       <li>Total {baht(orderTotal(order))}</li>
                     </ul>
-                  )}
-                </div>
+                    <h3>Pickup location</h3>
+                    <PickupMap cafeName={order.cafe} pickupPoint={order.pickupPoint ?? order.pickup ?? cafes.find((store) => store.name === order.cafe)?.pickupPoint} />
+                  </div>
+                )}
               </article>
             );
           })}
@@ -143,6 +148,7 @@ export function PaymentPage({ basket }) {
             : <p>{sessionEnabled ? counter : pickup}</p>}
           {!sessionEnabled && <button onClick={() => setEditing(!editing)}>{editing ? 'Done' : 'Edit'}</button>}
         </div>
+        {!loading && !error && <PickupMap cafeName={cafe} pickupPoint={counter} />}
       </section>
       <section className="payment-section">
         <h2>Your order</h2>
