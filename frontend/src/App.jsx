@@ -53,15 +53,14 @@ export default function App() {
   const { pathname } = useLocation();
   const orderNotifications = useOrderNotifications(account, catalog.cafes, sessionEnabled && !pathname.startsWith('/staff'), catalog.menu);
   const [sessionLoading, setSessionLoading] = useState(sessionEnabled);
-  const [selectedCafe, setSelectedCafe] = useState(null);
   const [favoriteError, setFavoriteError] = useState('');
   const loadFavorites = useCallback((signal) => account ? getFavorites(signal) : null, [account]);
   const saved = useApiResource(loadFavorites, sessionEnabled && Boolean(account));
   const activeFavorites = sessionEnabled
     ? (saved.data?.items ?? []).map(({ menuItemId }) => demoItemIds[menuItemId] ?? String(menuItemId))
     : favorites;
-  const allowedCafes = catalog.cafes.filter(({ cafeId }) => account?.staffCafeIds?.includes(cafeId));
-  const staffStore = allowedCafes.find(({ name }) => name === selectedCafe) ?? allowedCafes[0];
+  const assignedCafeId = account?.staffCafeIds?.length === 1 ? account.staffCafeIds[0] : null;
+  const staffStore = catalog.cafes.find(({ cafeId }) => cafeId === assignedCafeId);
   const activeStaffCafe = sessionEnabled ? staffStore?.name : staffCafe;
 
   useEffect(() => {
@@ -80,7 +79,6 @@ export default function App() {
     setAccount(null);
     setBasket({});
     setFavoriteError('');
-    setSelectedCafe(null);
     setStaffCafe('');
   }
 
@@ -160,7 +158,7 @@ export default function App() {
   }
 
   return (
-    <MenuContext.Provider value={{ ...catalog, account, logout, staffStore, allowedCafes, selectStaffCafe: setSelectedCafe, viewMode, setViewMode, basket, changeQuantity, orderNotifications }}>
+    <MenuContext.Provider value={{ ...catalog, account, logout, staffStore, viewMode, setViewMode, basket, changeQuantity, orderNotifications }}>
     <div className={wideScreen && viewMode !== 'mobile' ? 'desktop-view' : 'mobile-view'}>
     {orderNotifications.toast && <aside className="ready-toast" role="status" aria-live="polite">
       <div><strong>{orderNotifications.toast.title}</strong><p>{orderNotifications.toast.cafe}{orderNotifications.toast.queueNumber ? ` · Queue #${String(orderNotifications.toast.queueNumber).padStart(3, '0')}` : ''}</p>
@@ -170,7 +168,7 @@ export default function App() {
     <Routes>
       <Route path="/welcome" element={<WelcomePage />} />
       <Route path="/login" element={account ? <Navigate to="/" replace /> : <LoginPage onAccount={setAccount} />} />
-      <Route path="/staff/login" element={<LoginPage key="staff" staff onAccount={setAccount} onStaffLogin={sessionEnabled ? setSelectedCafe : setStaffCafe} />} />
+      <Route path="/staff/login" element={<LoginPage key="staff" staff onAccount={setAccount} onStaffLogin={setStaffCafe} />} />
       <Route element={sessionLoading ? <p role="status" className="auth-loading">Checking your session…</p> : account ? <Outlet /> : <Navigate to="/login" replace />}>
       <Route path="/" element={<HomePage />} />
       <Route path="/profile" element={<ProfilePage account={account} onAccount={setAccount} />} />
@@ -181,7 +179,7 @@ export default function App() {
       <Route path="/payment" element={<PaymentPage basket={basket} />} />
       <Route path="/payment/online" element={<OnlinePaymentPage basket={basket} placeOrder={placeOrder} clearCafe={clearCafe} account={account} />} />
       </Route>
-      <Route path="/staff" element={sessionLoading || (account?.staffCafeIds?.length && !staffStore && !catalog.error) ? <p role="status">Loading your store…</p> : activeStaffCafe ? <StaffLayout cafe={activeStaffCafe} onLogout={logout} /> : <Navigate to="/staff/login" replace />}>
+      <Route path="/staff" element={sessionLoading || (assignedCafeId && catalog.loading) ? <p role="status">Loading your store…</p> : activeStaffCafe ? <StaffLayout cafe={activeStaffCafe} onLogout={logout} /> : <Navigate to="/staff/login" replace />}>
         <Route index element={<Navigate to="orders" replace />} />
         <Route path="orders" element={<StaffPage cafe={activeStaffCafe} cafeId={staffStore?.cafeId} orders={orders} advanceOrder={advanceOrder} />} />
         <Route path="menu" element={<StaffMenuPage key={activeStaffCafe} cafe={activeStaffCafe} editMenuItem={editMenuItem} addMenuItem={addMenuItem} deleteMenuItem={deleteMenuItem} />} />

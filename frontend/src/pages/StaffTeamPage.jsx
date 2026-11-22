@@ -27,7 +27,7 @@ export default function StaffTeamPage() {
 
   return <div className="staff-team">
     <h2>Store team</h2>
-    <p>Each person uses their own account. Everyone assigned to this store can manage its orders and menu.</p>
+    <p>Each account can join one store. Your team can manage this store’s orders and menu.</p>
     {team.loading && <p role="status">Loading team…</p>}
     {team.error && <p role="alert">{team.error} <button onClick={team.refresh}>Retry</button></p>}
     <ul className="team-list">{team.data?.items.map((user) => <li className="outlined" key={user.userId}><strong>{user.name}</strong><span>{user.email}</span><small>{user.userId === team.data.ownerUserId ? 'Owner' : 'Staff'}</small></li>)}</ul>

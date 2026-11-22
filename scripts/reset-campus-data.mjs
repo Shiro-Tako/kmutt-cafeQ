@@ -26,14 +26,13 @@ try {
     backup.tables[name] = rows;
   }
   await writeFile(backupPath, JSON.stringify(backup, null, 2), { flag: 'wx' });
-  const { users, Customer: customers, cafe_owners: owners, profile_photos: photos } = backup.tables;
+  const { users, Customer: customers, profile_photos: photos } = backup.tables;
   const retained = users.filter((user) => !user.email.toLowerCase().endsWith('@example.test')).map((user) => ({
     userId: user.id, name: user.name, email: user.email, passwordHash: user.password_hash,
     phone: customers.find((customer) => customer.customer_id === user.id)?.phone ?? null,
     photo: photos.find((entry) => entry.user_id === user.id)?.photo,
   }));
-  const ownerUserId = retained.filter((user) => owners.some((owner) => owner.user_id === user.userId)).sort((a, b) => a.userId - b.userId)[0]?.userId;
-  const state = createCampusState(config.accountPassword, retained, ownerUserId);
+  const state = createCampusState(config.accountPassword, retained);
   // Reuse the persistence adapter's column order and parameterized row conversion.
   const [schemaTables] = await connection.query('SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE()');
   if (!deleteOrder.every((name) => schemaTables.some((row) => row.TABLE_NAME.toLowerCase() === name.toLowerCase()))) throw new Error('Expected CafeQ tables are missing.');
@@ -47,7 +46,7 @@ try {
   }
   await connection.query('UPDATE app_lock SET initialized = 1 WHERE id = 1');
   await connection.commit();
-  console.log(JSON.stringify({ retainedRealAccounts: retained.length, stores: state.cafes.length, menuItems: state.menu.length, orders: 0, existingOwnerManagesCatalog: Boolean(ownerUserId), backup: fileURLToPath(backupPath) }));
+  console.log(JSON.stringify({ retainedRealAccounts: retained.length, stores: state.cafes.length, menuItems: state.menu.length, orders: 0, backup: fileURLToPath(backupPath) }));
 } catch (error) {
   await connection.rollback();
   throw error;

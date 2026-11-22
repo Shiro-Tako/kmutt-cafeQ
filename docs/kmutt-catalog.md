@@ -2,7 +2,7 @@
 
 Store names and campus locations reference the [KMUTT property management coffee-shop directory](https://bpuu.kmutt.ac.th/coffee-shop/), checked on 20 November 2026. This directory is the source for the locations; current opening hours or operation were not independently confirmed.
 
-| Store | Pickup location | Menu items | Demo staff email |
+| Store | Pickup location | Menu items | Demo owner email |
 | --- | --- | --- | --- |
 | Café Amazon | Library building N10 | 12 | amazon-library@example.test |
 | Inthanin | Car parking building S2 | 12 | inthanin-s2@example.test |
@@ -24,9 +24,11 @@ node scripts/reset-campus-data.mjs --keep-real-accounts --confirm-reset
 
 Run from the repository root while the laptop MySQL instance is running. It targets only `kmutt_cafeq` using the ignored `.local/server.json` connection details. It takes the demo transaction lock, writes a full JSON table backup under `.local/backups/`, then deletes and inserts rows in one transaction with foreign keys enabled. Failure rolls back the database transaction. Backups contain private account/session data and must remain local.
 
-Real accounts (emails outside the reserved `@example.test` test domain) retain their user IDs, names, email addresses, password hashes and phone numbers. Old store assignments are removed with the old stores. If a retained account owned an old store, the earliest such owner manages all five replacement demo stores. Otherwise each store's generated demo staff account owns its store. Other retained accounts remain customers and can be assigned through Team.
+Real accounts (emails outside the reserved `@example.test` test domain) retain their user IDs, names, email addresses, password hashes and phone numbers. Each campus café uses its own demo owner account. Retained accounts remain customers and can be assigned to one café through Team.
 
-The reset creates a fresh demo customer plus the five staff accounts above. Their password comes from `accountPassword` in `.local/server.json`; real account passwords are unchanged. Everyone must log in again because old sessions are cleared. Old unavailable basket entries are removed after the catalog reloads.
+The reset creates a fresh demo customer plus the five owner accounts above. Their password comes from `accountPassword` in `.local/server.json`. Everyone must log in again because the reset clears old sessions. Old unavailable basket entries are removed after the catalog reloads.
+
+On an existing database, the backend automatically corrects the old reset that gave all five campus cafés to a single real account. It transfers ownership to the five dedicated accounts while preserving users, menu items and orders. A database reset is unnecessary.
 
 ## Verify
 
@@ -38,7 +40,7 @@ LEFT JOIN menu_items m ON m.cafe_id = c.id
 GROUP BY c.id, c.name;
 ```
 
-Expect five stores with ten items each immediately after the reset. `orders`, `payments`, `Order`, `OrderDetail` and `Queue` should be empty until new orders are placed. Check the café filter and all menu categories in the browser; tea shops have their items under Tea & More. Existing real owners can switch active café on the staff side.
+Expect five stores with twelve items each immediately after the reset. `orders`, `payments`, `Order`, `OrderDetail` and `Queue` should be empty until new orders are placed. Check the café filter and all menu categories in the browser. Each owner account opens its assigned café on the store side.
 
 Run `node --test backend/test/campusSeed.test.js backend/test/demo.test.js` and `npm.cmd --prefix frontend run build` to check catalog generation, account preservation and the ordering/team regressions.
 

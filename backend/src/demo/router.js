@@ -20,7 +20,9 @@ function userFrom(state, request) {
 
 function staffFrom(state, request) {
   const user = userFrom(state, request);
-  if (!user.staffCafeIds.includes(Number(request.params.cafeId))) fail(403, 'STORE_ACCESS_DENIED', 'This account cannot manage this café.');
+  if (user.staffCafeIds.length !== 1 || user.staffCafeIds[0] !== Number(request.params.cafeId)) {
+    fail(403, 'STORE_ACCESS_DENIED', 'This account cannot manage this café.');
+  }
   return user;
 }
 
@@ -96,8 +98,8 @@ router.post('/auth/store-register', async (request, response) => {
       fail(401, 'INVALID_LOGIN', 'This email already has an account. Enter its current password to create your store.');
     }
     const user = existing || newAccount(state, request.body);
-    if (state.cafes.some((cafe) => cafe.ownerUserId === user.userId && cafe.name.toLowerCase() === storeName.trim().toLowerCase())) {
-      fail(409, 'STORE_EXISTS', 'You already own a store with this name. Log in on the store side to manage it.');
+    if (user.staffCafeIds.length) {
+      fail(409, 'STORE_ALREADY_ASSIGNED', 'This account already manages a café. Use a different account to create a new café.');
     }
     const cafeId = Math.max(0, ...state.cafes.map((cafe) => cafe.cafeId)) + 1;
     state.cafes.push({ cafeId, name: storeName.trim(), pickupPoint: pickupPoint.trim(), ownerUserId: user.userId });
@@ -126,6 +128,7 @@ router.post('/staff/cafes/:cafeId/team', async (request, response) => {
     if (typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) fail(400, 'INVALID_EMAIL', 'Enter a valid email.');
     const user = state.users.find((entry) => entry.email === email.trim().toLowerCase()) ?? newAccount(state, request.body);
     if (user.staffCafeIds.includes(cafe.cafeId)) fail(409, 'ALREADY_STAFF', 'This account already manages this store.');
+    if (user.staffCafeIds.length) fail(409, 'STORE_ALREADY_ASSIGNED', 'This account is already assigned to another café.');
     user.staffCafeIds.push(cafe.cafeId);
     user.role = 'staff';
     return { userId: user.userId, name: user.name, email: user.email };
@@ -169,7 +172,9 @@ router.post('/auth/login', async (request, response) => {
     if (typeof email !== 'string' || typeof password !== 'string' || password.length > 128) fail(400, 'INVALID_ACCOUNT', 'Enter your email and password.');
     const user = state.users.find((entry) => entry.email === email.trim().toLowerCase());
     if (!user || !checkPassword(password, user.passwordHash)) fail(401, 'INVALID_LOGIN', 'Email or password is incorrect.');
-    if (request.body.staff === true && !user.staffCafeIds.length) fail(403, 'STORE_ACCESS_DENIED', 'This account has no assigned store. Ask the owner to add your email.');
+    if (request.body.staff === true && user.staffCafeIds.length !== 1) {
+      fail(403, 'STORE_ACCESS_DENIED', 'Store access requires an account assigned to one café.');
+    }
     return startSession(state, user);
   });
   setCookie(response, result.token);

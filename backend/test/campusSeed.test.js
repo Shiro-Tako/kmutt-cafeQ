@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createCampusState } from '../src/demo/campusSeed.js';
+import { createCampusState, repairCampusOwnership } from '../src/demo/campusSeed.js';
 import { checkPassword, hashPassword } from '../src/demo/store.js';
 
 test('campus catalog has five stores, twelve valid menu items each and working sample accounts', () => {
@@ -11,7 +11,7 @@ test('campus catalog has five stores, twelve valid menu items each and working s
   for (const cafe of state.cafes) {
     assert.equal(state.menu.filter((item) => item.cafeId === cafe.cafeId).length, 12);
     const owner = state.users.find((user) => user.userId === cafe.ownerUserId);
-    assert.ok(owner.staffCafeIds.includes(cafe.cafeId));
+    assert.deepEqual(owner.staffCafeIds, [cafe.cafeId]);
     assert.ok(checkPassword('ExamplePassword123', owner.passwordHash));
   }
   for (const item of state.menu) {
@@ -22,19 +22,35 @@ test('campus catalog has five stores, twelve valid menu items each and working s
   }
 });
 
-test('real accounts keep their identity and password while the existing owner manages the new catalog', () => {
+test('real accounts keep their identity and password without gaining campus store access', () => {
   const retained = [{ userId: 250, name: 'Existing owner', email: 'owner@university.invalid', phone: '0123456789', passwordHash: hashPassword('KeepMyPassword') }];
-  const state = createCampusState('DemoPassword123', retained, 250);
+  const state = createCampusState('DemoPassword123', retained);
   const owner = state.users.find((user) => user.userId === 250);
   assert.equal(owner.name, retained[0].name);
   assert.equal(owner.email, retained[0].email);
   assert.equal(owner.phone, retained[0].phone);
   assert.equal(owner.passwordHash, retained[0].passwordHash);
-  assert.deepEqual(owner.staffCafeIds, [1, 2, 3, 4, 5]);
-  assert.ok(state.cafes.every((cafe) => cafe.ownerUserId === 250));
+  assert.deepEqual(owner.staffCafeIds, []);
+  assert.ok(state.cafes.every((cafe) => cafe.ownerUserId !== 250));
   assert.equal(new Set(state.users.map((user) => user.userId)).size, state.users.length);
   assert.deepEqual(state.orders, []);
   assert.deepEqual(state.sessions, []);
   assert.deepEqual(state.favorites, []);
   assert.equal(retained[0].staffCafeIds, undefined);
+});
+
+test('legacy campus ownership transfers to the dedicated accounts and preserves unrelated roles', () => {
+  const state = createCampusState('DemoPassword123', [{ userId: 250, name: 'Previous owner', email: 'owner@university.invalid' }]);
+  const previousOwner = state.users[0];
+  const expectedCafes = structuredClone(state.cafes);
+  for (const cafe of state.cafes) cafe.ownerUserId = 250;
+  state.cafes.push({ cafeId: 6, name: 'Independent Café', ownerUserId: 250 });
+  previousOwner.staffCafeIds = [1, 2, 3, 4, 5, 6];
+
+  repairCampusOwnership(state);
+  repairCampusOwnership(state);
+  assert.deepEqual(state.cafes.slice(0, 5), expectedCafes);
+  assert.equal(state.cafes[5].ownerUserId, 250);
+  assert.deepEqual(previousOwner.staffCafeIds, [6]);
+  assert.equal(previousOwner.role, 'staff');
 });

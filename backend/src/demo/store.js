@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
 import { listCafes, listMenuItems } from '../repositories/catalog.js';
 import { transactMysql } from './mysqlStore.js';
+import { createCampusState, repairCampusOwnership } from './campusSeed.js';
 
 const file = process.env.DEMO_DATA_FILE || fileURLToPath(new URL('../../data/demo.json', import.meta.url));
 let queue = Promise.resolve();
@@ -34,7 +35,6 @@ async function read() {
 export async function createInitialState() {
     const password = process.env.DEMO_SEED_PASSWORD || 'CafeQ123!';
     if (process.env.DEMO_CATALOG === 'kmutt') {
-      const { createCampusState } = await import('./campusSeed.js');
       return createCampusState(password);
     }
     return {
@@ -51,10 +51,14 @@ export async function createInitialState() {
 
 // Serialize requests so checkout and menu updates see a consistent snapshot.
 export function transact(action) {
-  if (process.env.DATA_STORE === 'mysql') return transactMysql(action, createInitialState);
+  const withCurrentOwnership = (state) => {
+    repairCampusOwnership(state);
+    return action(state);
+  };
+  if (process.env.DATA_STORE === 'mysql') return transactMysql(withCurrentOwnership, createInitialState);
   const result = queue.then(async () => {
     const state = await read();
-    const value = await action(state);
+    const value = await withCurrentOwnership(state);
     await mkdir(dirname(resolve(file)), { recursive: true });
     await writeFile(file + '.tmp', JSON.stringify(state, null, 2));
     await rename(file + '.tmp', file);

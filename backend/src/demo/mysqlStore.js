@@ -83,13 +83,12 @@ export async function transactMysql(action, seed) {
     const before = lock.initialized ? rowsFrom(state) : tables.map(() => []);
     const result = await action(state);
     const after = rowsFrom(state);
-    // Session and favorite deletion are the only physical deletions in the app.
-    for (const index of [4, 5]) {
+    const deletableKeys = [[2, 2], [4, 1], [5, 2], [10, 1]];
+    for (const [index, keyCount] of deletableKeys) {
       const [name, columns] = tables[index];
-      const keyCount = index === 4 ? 1 : 2;
       for (const row of before[index]) {
         if (!after[index].some((entry) => entry.slice(0, keyCount).every((value, key) => value === row[key]))) {
-          await connection.execute('DELETE FROM ' + name + ' WHERE ' + columns.slice(0, keyCount).map((column) => column + ' = ?').join(' AND '), row.slice(0, keyCount));
+          await connection.execute('DELETE FROM `' + name + '` WHERE ' + columns.slice(0, keyCount).map((column) => column + ' = ?').join(' AND '), row.slice(0, keyCount));
         }
       }
     }

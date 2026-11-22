@@ -8,7 +8,6 @@ import { sessionEnabled } from '../services/auth.js';
 export function StaffLayout({ cafe, onLogout }) {
   const [settings, setSettings] = useState(false);
   const [error, setError] = useState('');
-  const { allowedCafes, selectStaffCafe } = useMenu();
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
@@ -34,11 +33,6 @@ export function StaffLayout({ cafe, onLogout }) {
           <NavLink to="menu">Menu</NavLink>
           {sessionEnabled && <NavLink to="team">Team</NavLink>}
         </nav>
-        {allowedCafes.length > 1 && <label className="store-select">Active café
-          <select value={cafe} onChange={(event) => selectStaffCafe(event.target.value)}>
-            {allowedCafes.map(({ cafeId, name }) => <option key={cafeId}>{name}</option>)}
-          </select>
-        </label>}
         <Outlet />
       </section>
     </main>
