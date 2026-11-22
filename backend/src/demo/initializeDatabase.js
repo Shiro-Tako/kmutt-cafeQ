@@ -1,3 +1,4 @@
+// อ่านไฟล์ SQL มาสร้างตาราง MySQL สำหรับแอปและชุดนำเสนอ
 import 'dotenv/config';
 import { readFile } from 'node:fs/promises';
 import { pool } from '../config/database.js';

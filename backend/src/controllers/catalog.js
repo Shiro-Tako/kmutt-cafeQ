@@ -10,6 +10,7 @@ export async function getCafes(_request, response) {
   response.json({ items: await catalog.listCafes() });
 }
 
+// ตรวจตัวกรองจาก URL แล้วส่งรายการเมนูกลับเป็น JSON
 export async function getMenuItems(request, response) {
   const { cafeId, category, q } = request.query;
   if ((cafeId !== undefined && positiveId(cafeId) === null) ||
@@ -67,6 +68,7 @@ function invalidPhoto(response) {
   return response.status(400).json({ error: { code: 'INVALID_MENU_PHOTO', message: 'Choose a valid menu photo and try again.' } });
 }
 
+// ตรวจข้อมูลเมนูและรูป แล้วบันทึก URL ของไฟล์ไว้กับเมนู
 export async function createMenuItem(request, response) {
   const { photo, ...fields } = request.body ?? {};
   const details = parseMenu(fields, false);
@@ -88,6 +90,7 @@ export async function patchMenuItem(request, response) {
   if (!id || !details) return invalid(response);
   const cafeId = response.locals.catalogCafeId;
   if (bytes) {
+    // ตรวจว่าเมนูอยู่ในร้านนี้ก่อนบันทึกรูปใหม่
     const existing = await catalog.findMenuItem(id);
     if (existing?.cafeId !== cafeId) return missing(response);
     details.imageUrl = await saveMenuPhoto(bytes);

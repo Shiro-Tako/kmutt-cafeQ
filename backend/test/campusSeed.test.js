@@ -1,3 +1,4 @@
+// ทดสอบข้อมูลตั้งต้นของร้านและการย้ายสิทธิ์เจ้าของร้านเดิม
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createCampusState, repairCampusOwnership } from '../src/demo/campusSeed.js';

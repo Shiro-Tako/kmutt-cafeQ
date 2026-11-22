@@ -12,6 +12,7 @@ const app = express();
 const port = Number(process.env.PORT || 3000);
 const host = '127.0.0.1';
 
+// ให้หน้าเว็บ Vite อ่านคำตอบได้เมื่อเรียก Express โดยตรงข้ามพอร์ต
 app.use(cors({ origin: ['http://localhost:5173', 'http://127.0.0.1:5173'] }));
 app.use('/api/staff/cafes/:cafeId/menu-items', express.json({ limit: '512kb' }));
 app.use(express.json());
@@ -20,10 +21,12 @@ app.use('/api/menu-photos', (request, response, next) => {
   response.set('X-Content-Type-Options', 'nosniff');
   next();
 }, express.static(menuPhotoDirectory, { index: false, redirect: false, immutable: true, maxAge: '1y' }));
+// ผูก router ไว้ใต้ /api ให้ตรงกับ URL ที่หน้าเว็บเรียก
 app.use('/api', healthRoutes);
 app.use('/api', demoRoutes);
 app.use('/api', createCatalogRouter(requireDemoStaff));
 app.use('/api', (_request, response) => response.status(404).json({ error: { code: 'NOT_FOUND', message: 'API route not found.' } }));
+// เมื่อมีไฟล์ที่ Vite build แล้ว Express เปิดหน้าเว็บและ API จากที่อยู่เดียวกัน
 const frontend = fileURLToPath(new URL('../../frontend/dist/', import.meta.url));
 if (existsSync(frontend)) {
   app.use(express.static(frontend, { setHeaders(response, path) {

@@ -1,3 +1,4 @@
+// อ่านและแก้ข้อมูลร้านกับเมนูผ่านตัวจัดเก็บของเดโม
 import { transact } from './store.js';
 
 export const demoCatalog = {

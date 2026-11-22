@@ -23,7 +23,7 @@ export function repairCampusOwnership(state) {
     owner: state.users.find((user) => user.email === account && user.staffCafeIds.length === 1 && user.staffCafeIds[0] === cafeId),
   }));
   const previousOwnerId = assignments[0].cafe?.ownerUserId;
-  // Match the original reset's five-store grant before changing existing permissions.
+  // ย้ายสิทธิ์เฉพาะกรณีที่ข้อมูลเดโมเดิมมอบทั้งห้าร้านให้บัญชีเดียว
   if (!previousOwnerId || !assignments.every(({ cafe, owner }) =>
     cafe?.ownerUserId === previousOwnerId && owner && owner.userId !== previousOwnerId)) return;
 

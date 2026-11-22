@@ -1,3 +1,4 @@
+// ทดสอบบัญชี สิทธิ์ร้าน ออเดอร์ และรูปเมนูผ่าน API ในฐานข้อมูลทดสอบ
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';

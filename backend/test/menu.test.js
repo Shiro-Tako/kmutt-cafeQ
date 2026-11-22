@@ -1,3 +1,4 @@
+// ทดสอบการอ่านเมนูและตรวจว่าการแก้เมนูจำกัดเฉพาะร้านที่มีสิทธิ์
 import assert from 'node:assert/strict';
 import { once } from 'node:events';
 import test from 'node:test';

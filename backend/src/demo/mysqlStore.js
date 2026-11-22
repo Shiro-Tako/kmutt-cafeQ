@@ -83,6 +83,7 @@ export async function transactMysql(action, seed) {
     const before = lock.initialized ? rowsFrom(state) : tables.map(() => []);
     const result = await action(state);
     const after = rowsFrom(state);
+    // ลบเฉพาะสิทธิ์ร้าน เซสชัน รายการโปรด และข้อมูลพนักงานที่ถูกถอนออก
     const deletableKeys = [[2, 2], [4, 1], [5, 2], [10, 1]];
     for (const [index, keyCount] of deletableKeys) {
       const [name, columns] = tables[index];

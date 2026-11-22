@@ -1,3 +1,4 @@
+// อ่านค่าฐานข้อมูลจาก environment และสร้าง pool สำหรับนำการเชื่อมต่อ MySQL กลับมาใช้ซ้ำ
 import 'dotenv/config';
 import mysql from 'mysql2/promise';
 

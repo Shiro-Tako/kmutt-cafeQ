@@ -10,6 +10,7 @@ export function createCatalogRouter(requireStaffCafe = staffAuthUnavailable) {
   const staffMenu = '/staff/cafes/:cafeId/menu-items';
 
   router.get('/cafes', getCafes);
+  // คำขออ่านเมนูส่งต่อให้ getMenuItems ใน controller
   router.get('/menu-items', getMenuItems);
   router.get('/menu-items/:id', getMenuItem);
   router.post(staffMenu, validateStaffCafe, requireStaffCafe, createMenuItem);

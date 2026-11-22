@@ -1,3 +1,4 @@
+// เลือกแหล่งข้อมูลเมนูตามค่าตั้ง เช่น เดโม MySQL หรือข้อมูลจำลอง
 import { mysqlCatalog } from './mysqlCatalog.js';
 import { demoCatalog } from '../demo/catalog.js';
 

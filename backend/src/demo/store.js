@@ -1,3 +1,4 @@
+// ดูแลข้อมูลเดโมและเลือกใช้ MySQL หรือไฟล์ JSON ตามค่าตั้ง
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -9,6 +10,7 @@ import { createCampusState, repairCampusOwnership } from './campusSeed.js';
 const file = process.env.DEMO_DATA_FILE || fileURLToPath(new URL('../../data/demo.json', import.meta.url));
 let queue = Promise.resolve();
 
+// สุ่ม salt แล้วใช้ scrypt ทำแฮชรหัสผ่านก่อนบันทึก
 export function hashPassword(password) {
   const salt = randomBytes(16).toString('hex');
   return salt + ':' + scryptSync(password, salt, 64).toString('hex');

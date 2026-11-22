@@ -18,6 +18,7 @@ function userFrom(state, request) {
   return user;
 }
 
+// ตรวจว่าบัญชีล็อกอินแล้วและมีสิทธิ์จัดการร้านที่ระบุใน URL
 function staffFrom(state, request) {
   const user = userFrom(state, request);
   if (user.staffCafeIds.length !== 1 || user.staffCafeIds[0] !== Number(request.params.cafeId)) {
@@ -110,6 +111,7 @@ router.post('/staff/cafes/:cafeId/team', async (request, response) => {
   response.status(201).json(item);
 });
 
+// การสมัครสาธารณะสร้างบัญชีลูกค้าเท่านั้น สิทธิ์ร้านเพิ่มผ่านทีมของร้าน
 router.post('/auth/register', async (request, response) => {
   const result = await transact((state) => {
     const { name, email, password, phone } = request.body ?? {};
@@ -140,6 +142,7 @@ function setCookie(response, token) {
   response.cookie('cafeq_session', token, { httpOnly: true, sameSite: 'strict', path: '/api', maxAge: 86400000, secure: process.env.PUBLIC_HTTPS === 'true' });
 }
 
+// ตรวจอีเมลและรหัสผ่าน แล้วส่งคุกกี้เซสชันให้เบราว์เซอร์
 router.post('/auth/login', async (request, response) => {
   const result = await transact((state) => {
     const { email, password } = request.body ?? {};
@@ -236,6 +239,7 @@ router.post('/checkout/quote', async (request, response) => {
   response.json(await transact((state) => { userFrom(state, request); return quote(state, request.body); }));
 });
 
+// คำนวณยอดซ้ำก่อนสร้างออเดอร์และเลขคิว รหัสยืนยันเดิมใช้ป้องกันออเดอร์ซ้ำ
 router.post('/checkout/confirm', async (request, response) => {
   const result = await transact((state) => {
     const user = userFrom(state, request);
@@ -279,6 +283,7 @@ router.get('/orders/:id', async (request, response) => {
   response.json(await transact((state) => customerOrder(state, request)));
 });
 
+// ลูกค้ายืนยันรับออเดอร์ของตัวเองได้เมื่อร้านตั้งสถานะเป็น Ready
 router.patch('/orders/:id/pickup', async (request, response) => {
   response.json(await transact((state) => {
     const order = customerOrder(state, request);
@@ -296,6 +301,7 @@ router.get('/staff/cafes/:cafeId/orders', async (request, response) => {
   }) });
 });
 
+// ตรวจสิทธิ์ร้านและให้พนักงานเปลี่ยนสถานะได้ทีละขั้น
 router.patch('/staff/cafes/:cafeId/orders/:id/status', async (request, response) => {
   response.json(await transact((state) => {
     staffFrom(state, request);

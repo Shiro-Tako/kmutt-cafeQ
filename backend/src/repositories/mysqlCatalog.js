@@ -1,3 +1,4 @@
+// อ่านและแก้เมนูด้วยคำสั่ง MySQL ที่ส่งค่าแยกจากข้อความ SQL
 import { pool } from '../config/database.js';
 
 const columns = 'id AS menuItemId, cafe_id AS cafeId, name, category, description, price, image_url AS imageUrl, is_active AS isActive';

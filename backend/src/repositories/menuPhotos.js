@@ -9,6 +9,7 @@ const defaultDirectory = fileURLToPath(new URL('../../data/', import.meta.url));
 const directory = process.env.DEMO_DATA_FILE ? dirname(resolve(process.env.DEMO_DATA_FILE)) : defaultDirectory;
 export const menuPhotoDirectory = join(directory, 'menu-photos');
 
+// ตรวจรูปแบบและขนาดของข้อมูล JPEG ที่ส่งมาจากหน้าเว็บ
 export function decodeMenuPhoto(photo) {
   if (typeof photo !== 'string' || !photo.startsWith(prefix) ||
       photo.length > prefix.length + Math.ceil(maxPhotoBytes / 3) * 4) return null;
@@ -20,6 +21,7 @@ export function decodeMenuPhoto(photo) {
     bytes.at(-2) === 0xff && bytes.at(-1) === 0xd9 ? bytes : null;
 }
 
+// ใช้แฮชของรูปเป็นชื่อไฟล์ รูปที่เหมือนกันจึงใช้ URL เดียวกัน
 export async function saveMenuPhoto(bytes) {
   const filename = createHash('sha256').update(bytes).digest('hex') + '.jpg';
   const destination = join(menuPhotoDirectory, filename);
