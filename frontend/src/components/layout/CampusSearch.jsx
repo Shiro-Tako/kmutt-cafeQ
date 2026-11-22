@@ -1,3 +1,4 @@
+// รับคำค้นจากแถบบน แนะนำเมนู และส่งคำค้นต่อไปยังหน้าร้าน
 import { useId, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import { useMenu } from '../../data/MenuContext.jsx';

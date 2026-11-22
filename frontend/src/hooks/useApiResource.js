@@ -1,3 +1,4 @@
+// จัดการสถานะโหลด ข้อผิดพลาด และการเรียก API ซ้ำตามช่วงเวลาที่กำหนด
 import { useCallback, useEffect, useState } from 'react';
 
 export function useApiResource(load, enabled, interval = 0) {

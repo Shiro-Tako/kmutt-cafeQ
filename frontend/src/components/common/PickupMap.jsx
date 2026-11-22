@@ -1,3 +1,4 @@
+// แสดงแผนที่จุดรับตามร้านและลิงก์เปิด Google Maps
 import { getPickupLocation } from '../../data/pickupLocations.js';
 
 export default function PickupMap({ cafeName, pickupPoint }) {

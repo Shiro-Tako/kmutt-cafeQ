@@ -1,3 +1,4 @@
+// จับชื่อร้านและข้อมูลจุดรับกับตำแหน่งบนแผนที่ในมหาวิทยาลัย
 // Building names verified against KMUTT's official campus map and shop directory.
 // Google Maps resolves the building search; no guessed counter coordinates are used.
 const buildings = {

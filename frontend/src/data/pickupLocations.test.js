@@ -1,3 +1,4 @@
+// ทดสอบการจับคู่จุดรับสินค้าและข้อมูลสำหรับแสดงแผนที่
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { getPickupLocation } from './pickupLocations.js';

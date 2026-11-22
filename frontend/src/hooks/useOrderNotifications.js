@@ -1,3 +1,4 @@
+// โหลดออเดอร์เป็นระยะและเก็บว่าอ่านการแจ้งเตือนรายการไหนแล้ว
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getOrders } from '../services/orders.js';
 import { useApiResource } from './useApiResource.js';

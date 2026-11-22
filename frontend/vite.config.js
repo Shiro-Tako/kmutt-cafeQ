@@ -12,6 +12,7 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react(), tailwindcss()],
     server: {
+      // ตอนพัฒนา Vite ส่งคำขอ /api ต่อไปยัง Express
       proxy: { '/api': API_PROXY_TARGET },
     },
   };

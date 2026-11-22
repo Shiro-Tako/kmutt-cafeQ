@@ -1,3 +1,4 @@
+// ให้ลูกค้าเปลี่ยนชื่อ รูปโปรไฟล์ และรหัสผ่านผ่าน API บัญชี
 import { useRef, useState } from 'react';
 import CafeLayout, { asset } from '../components/layout/CafeLayout.jsx';
 import { requestJson } from '../services/api.js';

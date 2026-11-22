@@ -1,3 +1,4 @@
+// เชื่อม React state กับ localStorage เพื่อเก็บค่าหลังรีเฟรชหน้า
 import { useEffect, useState } from 'react';
 
 export default function useStoredState(key, initialValue) {

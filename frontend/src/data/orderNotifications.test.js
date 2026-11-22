@@ -1,3 +1,4 @@
+// ทดสอบข้อความแจ้งเตือนเมื่อออเดอร์พร้อมรับหรือเสร็จแล้ว
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { getOrderNotification } from './orderNotifications.js';

@@ -38,6 +38,7 @@ export function CafesPage() {
     item.name.toLowerCase().includes(query.trim().toLowerCase()),
   );
 
+  // รอให้ผู้ใช้หยุดพิมพ์สั้น ๆ ก่อนค้นหา และยกเลิกคำขอเดิมเมื่อเปลี่ยนตัวกรอง
   useEffect(() => {
     const controller = new AbortController();
     const timer = setTimeout(async () => {

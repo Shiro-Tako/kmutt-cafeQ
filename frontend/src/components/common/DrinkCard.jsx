@@ -1,3 +1,4 @@
+// การ์ดเมนูใช้แสดงรูป ชื่อ และราคา พร้อมลิงก์ไปหน้ารายละเอียด
 import { Link } from 'react-router';
 import { asset, Icon } from '../layout/CafeLayout.jsx';
 import { baht, getCafe } from '../../data/menu.js';

@@ -2,6 +2,7 @@ import { requestJson } from './api.js';
 
 export const sessionEnabled = true;
 export const getSession = (signal) => requestJson('/auth/me', { signal });
+// ส่งข้อมูลล็อกอินแบบ JSON ให้เซิร์ฟเวอร์ตรวจและสร้างเซสชัน
 export const signIn = (credentials) => requestJson('/auth/login', { method: 'POST', body: credentials });
 export const register = (details) => requestJson('/auth/register', { method: 'POST', body: details });
 export const getTeam = (cafeId, signal) => requestJson(`/staff/cafes/${cafeId}/team`, { signal });

@@ -13,6 +13,7 @@ export function useCatalog(demoMenu) {
   }, []);
   useEffect(() => {
     const controller = new AbortController();
+    // โหลดรายชื่อร้านและเมนูพร้อมกัน แล้วแปลงผลให้อยู่ในรูปที่หน้าเว็บใช้
     Promise.all([fetchCafes(controller.signal), fetchMenuItems({}, controller.signal)])
       .then(([cafes, rows]) => {
         if (!controller.signal.aborted) {

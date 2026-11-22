@@ -1,3 +1,4 @@
+// โครงที่ใช้ร่วมกันทั้งแถบค้นหา การแจ้งเตือน และเมนูนำทาง
 import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router';
 import { useMenu } from '../../data/MenuContext.jsx';

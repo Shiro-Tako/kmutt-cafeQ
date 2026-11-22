@@ -26,6 +26,7 @@ export async function fetchCafes(signal) {
   return items;
 }
 
+// ใส่ร้าน หมวด และคำค้นใน URL ของ GET /api/menu-items
 export async function fetchMenuItems({ cafeId, category, query }, signal) {
   const params = new URLSearchParams();
   if (category) params.set('category', category);
@@ -46,6 +47,7 @@ export function toMenuItem(row, cafes) {
   };
 }
 
+// ส่งรูปพร้อมข้อมูลเมนู และแปลงราคาจากบาทเป็นสตางค์ก่อนส่ง
 export function writeMenuItem(cafeId, id, details) {
   const { image, ...fields } = details ?? {};
   return requestJson(`/staff/cafes/${cafeId}/menu-items${id ? `/${id}` : ''}`, {

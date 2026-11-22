@@ -1,3 +1,4 @@
+// กำหนดเส้นทางหน้าเว็บและแชร์ข้อมูลบัญชี เมนู และตะกร้าให้แต่ละหน้า
 import { useCallback, useEffect, useState } from 'react';
 import { Link, Navigate, Outlet, Route, Routes, useLocation, useParams } from 'react-router';
 import { initialOrders, menu as initialMenu } from './data/menu.js';
@@ -59,6 +60,7 @@ export default function App() {
   const activeFavorites = sessionEnabled
     ? (saved.data?.items ?? []).map(({ menuItemId }) => demoItemIds[menuItemId] ?? String(menuItemId))
     : favorites;
+  // เลือกร้านจากสิทธิ์ที่ Backend ส่งมาพร้อมบัญชี
   const assignedCafeId = account?.staffCafeIds?.length === 1 ? account.staffCafeIds[0] : null;
   const staffStore = catalog.cafes.find(({ cafeId }) => cafeId === assignedCafeId);
   const activeStaffCafe = sessionEnabled ? staffStore?.name : staffCafe;

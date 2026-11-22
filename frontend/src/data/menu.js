@@ -1,3 +1,4 @@
+// รวมข้อมูลตัวอย่างสำหรับโหมดพรีวิวและฟังก์ชันแสดงราคาเป็นบาท
 export const cafes = ['Cafe Rung', 'Food Court'];
 
 export const menu = [

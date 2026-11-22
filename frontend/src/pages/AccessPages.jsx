@@ -26,6 +26,7 @@ export function LoginPage({ staff = false, onStaffLogin, onAccount }) {
   const [pending, setPending] = useState(false);
   const navigate = useNavigate();
   const { refresh } = useMenu();
+  // เปิดให้สมัครบัญชีฝั่งลูกค้า ส่วนฝั่งร้านใช้บัญชีที่ได้รับมอบหมาย
   const signUp = !staff && mode === 'Sign Up';
 
   async function submit(event) {
@@ -39,6 +40,7 @@ export function LoginPage({ staff = false, onStaffLogin, onAccount }) {
       }
       setPending(true);
       try {
+        // ส่งข้อมูลจากฟอร์มไปยัง API แล้วเก็บบัญชีที่เซิร์ฟเวอร์ส่งกลับมา
         const credentials = { email: fields.get('username').trim(), password: fields.get('password'), staff };
         const account = signUp
           ? await register({ ...credentials, name: fields.get('name').trim(), phone: fields.get('phone').trim() })

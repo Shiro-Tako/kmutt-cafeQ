@@ -41,6 +41,7 @@ export function StaffLayout({ cafe, onLogout }) {
 
 const maxEncodedPhotoLength = 'data:image/jpeg;base64,'.length + 4 * Math.ceil(300 * 1024 / 3);
 
+// ย่อรูปและแปลงเป็น JPEG ในเบราว์เซอร์ก่อนส่งไปที่ API
 async function prepareMenuPhoto(file) {
   if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 10 * 1024 * 1024) {
     throw new Error('Choose a JPG, PNG or WebP photo up to 10 MB.');
@@ -71,6 +72,7 @@ function MenuItemForm({ item, onSave, onCancel }) {
   const [photo, setPhoto] = useState(null);
   const [photoError, setPhotoError] = useState('');
   const [preparingPhoto, setPreparingPhoto] = useState(false);
+  // ตอนแก้เมนู แสดงรูปเดิมจนกว่าจะเลือกรูปใหม่
   const preview = photo ?? item?.image;
 
   async function selectPhoto(event) {

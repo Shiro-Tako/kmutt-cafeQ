@@ -1,3 +1,4 @@
+// แสดงหน้าแรกพร้อมทางลัด เมนูแนะนำ และสินค้าเด่น
 import { Link } from 'react-router';
 import CafeLayout, { asset, Icon } from '../components/layout/CafeLayout.jsx';
 import DrinkCard from '../components/common/DrinkCard.jsx';

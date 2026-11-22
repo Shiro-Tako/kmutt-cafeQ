@@ -14,6 +14,7 @@ export default function OnlinePaymentPage({ basket, placeOrder, clearCafe, accou
   const { cafe, cafeId, pickup, items, subtotal, fee } = getCheckout(basket, params.get('cafe'), params.get('pickup'), getItem, cafes);
   const checkoutUrl = `/payment?${params.toString()}`;
 
+  // ส่งรหัสร้าน รหัสเมนู และจำนวน เพื่อให้เซิร์ฟเวอร์คำนวณราคาจริงของออเดอร์
   const payload = JSON.stringify({
     cafeId,
     items: Object.entries(items).map(([id, quantity]) => ({ menuItemId: getItem(id).menuItemId, quantity })),
@@ -38,6 +39,7 @@ export default function OnlinePaymentPage({ basket, placeOrder, clearCafe, accou
       if (sessionEnabled) {
         const expectedTotal = quote.data.total;
         const key = JSON.stringify([account.userId, payload, expectedTotal]);
+        // ใช้รหัสยืนยันเดิมตอนลองส่งซ้ำ และล้างตะกร้าร้านนี้เมื่อ API ตอบว่าสำเร็จ
         if (confirmation.current?.key !== key) confirmation.current = { key, id: crypto.randomUUID() };
         await confirmOrder({ ...JSON.parse(payload), expectedTotal, confirmationId: confirmation.current.id });
         clearCafe(cafe);

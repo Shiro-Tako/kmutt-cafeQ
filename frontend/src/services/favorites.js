@@ -1,3 +1,4 @@
+// อ่านและบันทึกเมนูโปรดของบัญชีผ่าน API
 import { requestJson } from './api.js';
 
 export const getFavorites = (signal) => requestJson('/favorites', { signal });

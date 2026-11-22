@@ -1,3 +1,4 @@
+// แปลงสถานะออเดอร์เป็นข้อความแจ้งเตือนสำหรับลูกค้า
 export function getOrderNotification(order, cafes, menu = []) {
   if (!['Ready', 'Done'].includes(order.status)) return null;
   const ready = order.status === 'Ready';

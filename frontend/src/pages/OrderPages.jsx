@@ -53,6 +53,7 @@ export function BasketPage({ basket, orders, account, changeQuantity, clearCafe 
   async function acceptPickup(id) {
     setPickup({ id, pending: true });
     try {
+      // อัปเดตออเดอร์ในหน้าลูกค้าหลัง API ยืนยันว่ารับสินค้าแล้ว
       await confirmPickup(id);
       history.refresh();
       orderNotifications.refresh();
@@ -218,6 +219,7 @@ export function StaffPage({ cafe, cafeId, orders, advanceOrder }) {
     setError('');
     setPending(id);
     try {
+      // ส่งสถานะถัดไปให้ Backend บันทึก แล้วโหลดรายการออเดอร์ของร้านใหม่
       await updateOrderStatus(cafeId, id, statuses[next]);
       queue.refresh();
     } catch (failure) {
