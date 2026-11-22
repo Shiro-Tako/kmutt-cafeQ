@@ -17,9 +17,11 @@
 | `GET /api/cafes` | ทุกคน | รายการร้าน มี `cafeId`, `name`, `pickupPoint` |
 | `GET /api/menu-items` | ทุกคน | กรองเมนูเปิดขายด้วย `cafeId`, `category`, `q` ซึ่งเลือกส่งได้ |
 | `GET /api/menu-items/:id` | ทุกคน | รายละเอียดเมนูเปิดขาย ถ้าปิดขายตอบ `404` |
-| `POST /api/staff/cafes/:cafeId/menu-items` | พนักงานของร้าน | รับ `name`, `category`, `description`, `price`, `imageUrl` และคืนเมนูใหม่ `201` |
+| `POST /api/staff/cafes/:cafeId/menu-items` | พนักงานของร้าน | รับ `name`, `category`, `description`, `price` และแนบ `photo` หรือ `imageUrl` ได้ คืนเมนูใหม่ `201` |
 | `PATCH /api/staff/cafes/:cafeId/menu-items/:id` | พนักงานของร้าน | รับเฉพาะฟิลด์ที่แก้ คืนเมนูล่าสุด |
 | `DELETE /api/staff/cafes/:cafeId/menu-items/:id` | พนักงานของร้าน | ปิดขายเมนู คืน `204` |
+
+ฟอร์มเมนูจะย่อรูปที่เลือกและส่ง `photo` เป็น JPEG data URL ขนาดไฟล์หลังย่อสูงสุด 300 KiB เซิร์ฟเวอร์เก็บไฟล์ใต้ `backend/data/menu-photos/` ตามค่าเริ่มต้น และบันทึก URL รูปใน `imageUrl` ลูกค้าโหลดรูปผ่าน URL นั้นโดยตรง หากย้ายเครื่องเซิร์ฟเวอร์ ให้สำรองโฟลเดอร์รูปพร้อมฐานข้อมูลด้วย
 | `POST /api/auth/register` | ทุกคน | รับ `name`, `email`, `password` สร้างบัญชีลูกค้าและเริ่มเซสชัน คืนผู้ใช้ `201` |
 | `POST /api/auth/login` | ทุกคน | รับ `email`, `password` เริ่มเซสชันและคืนผู้ใช้ |
 | `GET /api/auth/me` | ผู้ใช้ที่ล็อกอิน | คืนผู้ใช้และร้านที่มีสิทธิ์ |

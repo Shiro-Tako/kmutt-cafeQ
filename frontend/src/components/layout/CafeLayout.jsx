@@ -11,7 +11,7 @@ import cafesIcon from '../../assets/campus/nav-cafes.png';
 import basketIcon from '../../assets/campus/nav-basket.png';
 import favoritesIcon from '../../assets/campus/nav-favorites.png';
 
-export const asset = (file) => file.startsWith('/') || file.startsWith('https://') ? file : `${import.meta.env.BASE_URL}figma/${file}`;
+export const asset = (file) => file.startsWith('/') || file.startsWith('https://') || file.startsWith('data:image/jpeg;base64,') ? file : `${import.meta.env.BASE_URL}figma/${file}`;
 
 export function Icon({ file, className }) {
   return <img className={className} src={asset(file)} alt="" />;

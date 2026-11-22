@@ -45,12 +45,58 @@ export function StaffLayout({ cafe, onLogout }) {
   );
 }
 
+const maxEncodedPhotoLength = 'data:image/jpeg;base64,'.length + 4 * Math.ceil(300 * 1024 / 3);
+
+async function prepareMenuPhoto(file) {
+  if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 10 * 1024 * 1024) {
+    throw new Error('Choose a JPG, PNG or WebP photo up to 10 MB.');
+  }
+  const bitmap = await createImageBitmap(file);
+  try {
+    const scale = Math.min(1, 768 / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+    canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+    const context = canvas.getContext('2d', { alpha: false });
+    context.fillStyle = '#fffaf5';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    for (const quality of [0.85, 0.7, 0.5, 0.3]) {
+      const photo = canvas.toDataURL('image/jpeg', quality);
+      if (photo.startsWith('data:image/jpeg;base64,') && photo.length <= maxEncodedPhotoLength) return photo;
+    }
+    throw new Error('This photo is too large after resizing. Choose a smaller photo.');
+  } finally {
+    bitmap.close();
+  }
+}
+
 function MenuItemForm({ item, onSave, onCancel }) {
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [photo, setPhoto] = useState(null);
+  const [photoError, setPhotoError] = useState('');
+  const [preparingPhoto, setPreparingPhoto] = useState(false);
+  const preview = photo ?? item?.image;
+
+  async function selectPhoto(event) {
+    const file = event.target.files[0];
+    event.target.value = '';
+    if (!file) return;
+    setPreparingPhoto(true);
+    setPhotoError('');
+    try {
+      setPhoto(await prepareMenuPhoto(file));
+    } catch (failure) {
+      setPhotoError(failure instanceof DOMException ? 'Could not open this photo. Choose a different file.' : failure.message);
+    } finally {
+      setPreparingPhoto(false);
+    }
+  }
 
   async function submit(event) {
     event.preventDefault();
+    if (saving || preparingPhoto || photoError) return;
     const fields = new FormData(event.currentTarget);
     const name = fields.get('name').trim();
     if (!name) {
@@ -65,6 +111,7 @@ function MenuItemForm({ item, onSave, onCancel }) {
         price: Number(fields.get('price')),
         category: fields.get('category'),
         description: fields.get('description').trim(),
+        ...(photo && { image: photo }),
       });
     } catch (failure) {
       setError(failure.message);
@@ -85,10 +132,18 @@ function MenuItemForm({ item, onSave, onCancel }) {
       </div>
       <label>Price (baht)<input name="price" type="number" min="0" max="9999" step="0.01" defaultValue={item?.price} required /></label>
       <label>Description<textarea name="description" maxLength={160} rows={3} defaultValue={item?.description} /></label>
+      <label>Menu photo
+        <input type="file" accept="image/jpeg,image/png,image/webp" onChange={selectPhoto} disabled={preparingPhoto || saving} />
+      </label>
+      <small>JPG, PNG, or WebP up to 10 MB.</small>
+      {preparingPhoto && <p role="status">Preparing photo…</p>}
+      {preview && <img className="staff-menu-photo-preview" src={asset(preview)} alt="Menu photo preview" />}
+      {(photo || photoError) && <button type="button" className="outlined staff-menu-photo-reset" disabled={preparingPhoto || saving} onClick={() => { setPhoto(null); setPhotoError(''); }}>Clear selection</button>}
+      {photoError && <p role="alert">{photoError}</p>}
       {error && <p role="alert">{error}</p>}
       <div className="staff-card-actions">
         <button type="button" className="outlined" onClick={onCancel} disabled={saving}>Cancel</button>
-        <button type="submit" className="primary" disabled={saving}>{item ? 'Save changes' : 'Add item'}</button>
+        <button type="submit" className="primary" disabled={saving || preparingPhoto || Boolean(photoError)}>{item ? 'Save changes' : 'Add item'}</button>
       </div>
     </form>
   );

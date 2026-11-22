@@ -47,8 +47,9 @@ export function toMenuItem(row, cafes) {
 }
 
 export function writeMenuItem(cafeId, id, details) {
+  const { image, ...fields } = details ?? {};
   return requestJson(`/staff/cafes/${cafeId}/menu-items${id ? `/${id}` : ''}`, {
     method: details ? (id ? 'PATCH' : 'POST') : 'DELETE',
-    body: details && { ...details, price: Math.round(details.price * 100) },
+    body: details && { ...fields, price: Math.round(details.price * 100), photo: image },
   });
 }

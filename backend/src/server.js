@@ -4,6 +4,7 @@ import express from 'express';
 import healthRoutes from './routes/health.js';
 import { createCatalogRouter } from './routes/catalog.js';
 import demoRoutes, { requireDemoStaff } from './demo/router.js';
+import { menuPhotoDirectory } from './repositories/menuPhotos.js';
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
@@ -12,7 +13,13 @@ const port = Number(process.env.PORT || 3000);
 const host = '127.0.0.1';
 
 app.use(cors({ origin: ['http://localhost:5173', 'http://127.0.0.1:5173'] }));
+app.use('/api/staff/cafes/:cafeId/menu-items', express.json({ limit: '512kb' }));
 app.use(express.json());
+app.use('/api/menu-photos', (request, response, next) => {
+  if (!/^\/[a-f0-9]{64}\.jpg$/.test(request.path)) return response.sendStatus(404);
+  response.set('X-Content-Type-Options', 'nosniff');
+  next();
+}, express.static(menuPhotoDirectory, { index: false, redirect: false, immutable: true, maxAge: '1y' }));
 app.use('/api', healthRoutes);
 app.use('/api', demoRoutes);
 app.use('/api', createCatalogRouter(requireDemoStaff));

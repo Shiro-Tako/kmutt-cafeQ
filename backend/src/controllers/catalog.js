@@ -1,4 +1,5 @@
 import { catalog } from '../repositories/catalog.js';
+import { decodeMenuPhoto, saveMenuPhoto } from '../repositories/menuPhotos.js';
 
 function positiveId(value) {
   const id = Number(value);
@@ -62,19 +63,36 @@ function missing(response) {
   return response.status(404).json({ error: { code: 'MENU_ITEM_NOT_FOUND', message: 'Item not found in this café.' } });
 }
 
+function invalidPhoto(response) {
+  return response.status(400).json({ error: { code: 'INVALID_MENU_PHOTO', message: 'Choose a valid menu photo and try again.' } });
+}
+
 export async function createMenuItem(request, response) {
-  const details = parseMenu(request.body, false);
+  const { photo, ...fields } = request.body ?? {};
+  const details = parseMenu(fields, false);
   if (!details) return invalid(response);
+  const bytes = decodeMenuPhoto(photo);
+  if (photo !== undefined && !bytes) return invalidPhoto(response);
   const cafeId = response.locals.catalogCafeId;
   if (!(await catalog.listCafes()).some((cafe) => cafe.cafeId === cafeId)) return missing(response);
+  if (bytes) details.imageUrl = await saveMenuPhoto(bytes);
   response.status(201).json(await catalog.addMenuItem(cafeId, { imageUrl: null, ...details }));
 }
 
 export async function patchMenuItem(request, response) {
   const id = positiveId(request.params.id);
-  const details = parseMenu(request.body, true);
+  const { photo, ...fields } = request.body ?? {};
+  const bytes = decodeMenuPhoto(photo);
+  if (photo !== undefined && !bytes) return invalidPhoto(response);
+  const details = bytes && Object.keys(fields).length === 0 ? {} : parseMenu(fields, true);
   if (!id || !details) return invalid(response);
-  const item = await catalog.editMenuItem(response.locals.catalogCafeId, id, details);
+  const cafeId = response.locals.catalogCafeId;
+  if (bytes) {
+    const existing = await catalog.findMenuItem(id);
+    if (existing?.cafeId !== cafeId) return missing(response);
+    details.imageUrl = await saveMenuPhoto(bytes);
+  }
+  const item = await catalog.editMenuItem(cafeId, id, details);
   if (!item) return missing(response);
   response.json(item);
 }
