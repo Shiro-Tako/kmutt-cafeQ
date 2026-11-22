@@ -6,6 +6,9 @@ import { getCheckout } from './OrderPages.jsx';
 import { useApiResource } from '../hooks/useApiResource.js';
 import { sessionEnabled } from '../services/auth.js';
 import { confirmOrder, quoteOrder } from '../services/orders.js';
+import demoQr from '../assets/demo-payment-qr.png';
+
+const demoQrLink = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
 
 export default function OnlinePaymentPage({ basket, placeOrder, clearCafe, account }) {
   const { getItem, cafes } = useMenu();
@@ -78,8 +81,16 @@ export default function OnlinePaymentPage({ basket, placeOrder, clearCafe, accou
               <div className="spread online-total"><strong>Total</strong><strong>{baht(shownTotal)}</strong></div>
             </div>
             <div className="outlined online-method">
-              <span className="payment-preview-icon" aria-hidden="true">฿</span>
-              <div><h2>PromptPay demo</h2><p>Complete the demo payment to send your order to the pickup queue.</p></div>
+              <div className="online-method-heading">
+                <span className="payment-preview-icon" aria-hidden="true">฿</span>
+                <h2>PromptPay demo</h2>
+              </div>
+              <figure className="payment-demo-qr">
+                <a href={demoQrLink} target="_blank" rel="noreferrer" aria-label="Open demo QR link in a new tab">
+                  <img src={demoQr} width="180" height="180" alt="Scannable demo QR code" />
+                </a>
+                <figcaption>Demo QR only. Use the button below to send your order to the pickup queue.</figcaption>
+              </figure>
             </div>
             <button className="primary" disabled={pending} onClick={completeDemoPayment}>Simulate payment · {baht(shownTotal)}</button>
           </>

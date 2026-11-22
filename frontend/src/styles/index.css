@@ -219,8 +219,11 @@ h1, h2, .feature strong, .menu-item-copy strong, .drink-card strong { font-famil
 .online-summary, .online-method { margin-block: 16px; padding: 16px; border-radius: 12px; }
 .online-summary .spread { margin-top: 8px; }
 .online-total { border-top: 1px solid var(--line); padding-top: 10px; }
-.online-method { display: flex; gap: 12px; align-items: center; }
-.online-method p { margin-bottom: 0; }
+.online-method-heading { display: flex; gap: 12px; align-items: center; }
+.payment-demo-qr { display: grid; justify-items: center; gap: 10px; margin-top: 14px; text-align: center; }
+.payment-demo-qr a { display: block; max-width: 100%; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.payment-demo-qr img { display: block; max-width: 100%; height: auto; }
+.payment-demo-qr figcaption { max-width: 280px; font-size: 12px; color: var(--muted); }
 .payment-preview-icon { display: grid; place-items: center; flex: 0 0 40px; height: 40px; border-radius: 8px; background: var(--canvas); font-size: 20px; }
 .staff-access > h2 { font-size: 19px; }
 .staff-access > p { font-size: 12px; margin-bottom: 14px; }
