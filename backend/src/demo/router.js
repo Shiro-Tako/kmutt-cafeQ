@@ -85,32 +85,6 @@ function newAccount(state, body) {
   return user;
 }
 
-router.post('/auth/store-register', async (request, response) => {
-  const result = await transact((state) => {
-    const { storeName, pickupPoint } = request.body ?? {};
-    if (typeof storeName !== 'string' || !storeName.trim() || storeName.length > 80 ||
-        typeof pickupPoint !== 'string' || !pickupPoint.trim() || pickupPoint.length > 160) {
-      fail(400, 'INVALID_STORE', 'Enter a store name (up to 80 characters) and pickup point (up to 160 characters).');
-    }
-    const { email, password } = request.body;
-    const existing = typeof email === 'string' && state.users.find((entry) => entry.email === email.trim().toLowerCase());
-    if (existing && (typeof password !== 'string' || password.length > 128 || !checkPassword(password, existing.passwordHash))) {
-      fail(401, 'INVALID_LOGIN', 'This email already has an account. Enter its current password to create your store.');
-    }
-    const user = existing || newAccount(state, request.body);
-    if (user.staffCafeIds.length) {
-      fail(409, 'STORE_ALREADY_ASSIGNED', 'This account already manages a café. Use a different account to create a new café.');
-    }
-    const cafeId = Math.max(0, ...state.cafes.map((cafe) => cafe.cafeId)) + 1;
-    state.cafes.push({ cafeId, name: storeName.trim(), pickupPoint: pickupPoint.trim(), ownerUserId: user.userId });
-    user.staffCafeIds.push(cafeId);
-    user.role = 'staff';
-    return startSession(state, user);
-  });
-  setCookie(response, result.token);
-  response.status(201).json(result.user);
-});
-
 router.get('/staff/cafes/:cafeId/team', async (request, response) => {
   response.json(await transact((state) => {
     staffFrom(state, request);
