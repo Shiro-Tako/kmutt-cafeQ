@@ -4,6 +4,12 @@ import { catalog } from './catalog.js';
 const rows = new Map();
 let nextId = 301;
 
+function confirmationConflict() {
+  const error = new Error('This confirmation was used for another order.');
+  error.code = 'CONFIRMATION_CONFLICT';
+  return error;
+}
+
 async function priceItems(cafeId, items) {
   const menu = await catalog.listMenuItems({ cafeId });
   const byId = new Map(menu.map((item) => [item.menuItemId, item]));
@@ -17,16 +23,25 @@ const mockOrders = {
   async priceItems(cafeId, items) { return priceItems(cafeId, items); },
   async createOrder(input) {
     const existing = [...rows.values()].find((order) => order.userId === input.userId && order.confirmationId === input.confirmationId);
-    if (existing) return existing;
+    if (existing) {
+      if (existing.requestFingerprint !== input.requestFingerprint) throw confirmationConflict();
+      return existing;
+    }
     const order = { orderId: nextId++, ...input, status: 'Waiting', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), items: input.items };
     rows.set(order.orderId, order);
     return order;
   },
   async listForUser(userId) { return [...rows.values()].filter((order) => order.userId === userId).sort((a, b) => b.orderId - a.orderId); },
   async findForUser(userId, orderId) { const order = rows.get(orderId); return order?.userId === userId ? order : null; },
-  async listForCafe(cafeId, status) { return [...rows.values()].filter((order) => order.cafeId === cafeId && (!status || order.status === status)); },
+  async listForCafe(cafeId, status) { return [...rows.values()].filter((order) => order.cafeId === cafeId && (!status || order.status === status)).sort((a, b) => b.orderId - a.orderId); },
   async findForCafe(cafeId, orderId) { const order = rows.get(orderId); return order?.cafeId === cafeId ? order : null; },
-  async updateStatus(_cafeId, orderId, status) { const order = rows.get(orderId); order.status = status; order.updatedAt = new Date().toISOString(); return order; },
+  async updateStatus(cafeId, orderId, status) {
+    const order = rows.get(orderId);
+    if (!order || order.cafeId !== cafeId) return null;
+    order.status = status;
+    order.updatedAt = new Date().toISOString();
+    return order;
+  },
 };
 
 function mapOrder(order, items) {
@@ -43,9 +58,14 @@ const mysqlOrders = {
     const connection = await pool.getConnection();
     try {
       await connection.beginTransaction();
-      const [existing] = await connection.execute('SELECT o.*, p.confirmation_id FROM payments p JOIN orders o ON o.id = p.order_id WHERE p.user_id = ? AND p.confirmation_id = ? FOR UPDATE', [input.userId, input.confirmationId]);
-      if (existing[0]) { await connection.rollback(); return this.findForUser(input.userId, existing[0].id); }
+      const [existing] = await connection.execute('SELECT o.*, p.confirmation_id, p.request_fingerprint FROM payments p JOIN orders o ON o.id = p.order_id WHERE p.user_id = ? AND p.confirmation_id = ? FOR UPDATE', [input.userId, input.confirmationId]);
+      if (existing[0]) {
+        if (existing[0].request_fingerprint !== input.requestFingerprint) throw confirmationConflict();
+        await connection.rollback();
+        return this.findForUser(input.userId, existing[0].id);
+      }
       const [created] = await connection.execute('INSERT INTO orders (user_id, cafe_id, pickup_point, status, subtotal, packaging_fee, total) SELECT ?, c.id, c.pickup_point, ?, ?, ?, ? FROM cafes c WHERE c.id = ?', [input.userId, 'Waiting', input.subtotal, input.packagingFee, input.total, input.cafeId]);
+      if (!created.insertId) throw new Error('Cafe not found.');
       await connection.query('INSERT INTO order_items (order_id, menu_item_id, name, unit_price, quantity) VALUES ?', [input.items.map((item) => [created.insertId, item.menuItemId, item.name, item.unitPrice, item.quantity])]);
       await connection.execute('INSERT INTO payments (order_id, user_id, confirmation_id, request_fingerprint, amount, method, status, confirmed_at) VALUES (?, ?, ?, ?, ?, ?, ?, UTC_TIMESTAMP())', [created.insertId, input.userId, input.confirmationId, input.requestFingerprint, input.total, 'promptpay_demo', 'confirmed']);
       await connection.commit();

@@ -57,7 +57,12 @@ export function createOrderService(repository) {
           !Number.isSafeInteger(input.expectedTotal) || input.expectedTotal < 1) throw invalid('Provide expectedTotal and confirmationId.');
       const priced = await quote(input);
       if (priced.total !== input.expectedTotal) throw new OrderError(409, 'PRICE_CHANGED', 'Review the updated total.');
-      return repository.createOrder({ ...priced, userId, confirmationId: input.confirmationId, requestFingerprint: JSON.stringify({ cafeId: priced.cafeId, items: input.items, total: priced.total }) });
+      try {
+        return await repository.createOrder({ ...priced, userId, confirmationId: input.confirmationId, requestFingerprint: JSON.stringify({ cafeId: priced.cafeId, items: input.items, total: priced.total }) });
+      } catch (error) {
+        if (error.code === 'CONFIRMATION_CONFLICT') throw new OrderError(409, error.code, error.message);
+        throw error;
+      }
     },
     listForUser(userId) { return repository.listForUser(userId); },
     getForUser(userId, orderId) { return repository.findForUser(userId, orderId); },
