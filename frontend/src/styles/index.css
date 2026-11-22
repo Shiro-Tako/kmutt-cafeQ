@@ -605,7 +605,11 @@ h1, h2, .feature strong, .menu-item-copy strong, .drink-card strong { font-famil
 .catalog-list .menu-item-copy { gap: 6px; }
 .catalog-list .menu-item-copy small { color: var(--muted); }
 .catalog-list .menu-item-copy b { padding-block: 10px 8px; padding-right: 48px; }
-.catalog-list .menu-item > .square-button { width: 44px; height: 44px; }
+.catalog-list .menu-item > .square-button { right: 3px; bottom: 3px; width: 44px; height: 44px; background: transparent; }
+.catalog-list .square-button > span {
+  display: grid; place-items: center; width: 32px; height: 32px; border-radius: 8px;
+  background: var(--action-gradient, var(--accent));
+}
 
 .account-card { display: grid; gap: 14px; max-width: 560px; padding: 20px; margin: 12px auto; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; }
 .account-card label, .avatar-picker { display: grid; gap: 6px; font-size: 14px; }

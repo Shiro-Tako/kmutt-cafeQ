@@ -130,7 +130,7 @@ export function CafesPage() {
               </span>
               <span className="menu-item-copy"><strong>{item.name}</strong><small>{getCafe(item)}</small><b>{baht(item.price)}</b></span>
             </Link>
-            <Link className="square-button" to={`/drink/${item.id}`} aria-label={`Choose ${item.name}`}>+</Link>
+            <Link className="square-button" to={`/drink/${item.id}`} aria-label={`Choose ${item.name}`}><span aria-hidden="true">+</span></Link>
           </article>
         ))}
         {!loading && items.length === 0 && <p>No menu items found.</p>}
